@@ -128,3 +128,9 @@
     @apply font-sans;
   }
 }
+
+/* 본문 서체 */
+body {
+  font-family: "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, "Pretendard",
+    "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+}

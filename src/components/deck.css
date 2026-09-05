@@ -5,15 +5,16 @@
 .deck-root {
   color-scheme: dark;
 
-  --deck-plane: #0d0d0d;
-  --deck-surface: #1a1a19;
+  --deck-plane: #060507;
+  --deck-surface: #131118;
   --deck-ink: #ffffff;
-  --deck-ink-2: #c3c2b7;
-  --deck-muted: #898781;
-  --deck-baseline: #383835;
-  --deck-hairline: #2c2c2a;
-  --deck-border: rgba(255, 255, 255, 0.1);
-  --deck-series: #3987e5;
+  --deck-ink-2: #c4c1cc;
+  --deck-muted: #8b8794;
+  --deck-baseline: #3a3742;
+  --deck-hairline: rgba(255, 255, 255, 0.08);
+  --deck-border: rgba(255, 255, 255, 0.12);
+  --deck-series: #a855f7;
+  --deck-accent-soft: #b19eef;
   --deck-good: #0ca30c;
   --deck-critical: #d03b3b;
 
@@ -22,7 +23,8 @@
   min-height: 100dvh;
   background: var(--deck-plane);
   color: var(--deck-ink);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, "Pretendard",
+    "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
 }
 
 /*
@@ -49,7 +51,7 @@
   flex-direction: column;
   gap: 26px;
   justify-content: center;
-  width: min(44%, 560px);
+  width: min(34%, 480px);
   height: 100%;
   padding: 40px 0 40px 56px;
   box-sizing: border-box;
@@ -83,16 +85,55 @@
 
 .deck-top__title {
   margin: 0;
-  font-size: clamp(30px, 3.4vw, 46px);
-  font-weight: 650;
-  line-height: 1.16;
-  letter-spacing: -0.03em;
+  font-size: clamp(34px, 3.8vw, 54px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.deck-top__title em {
+  font-style: normal;
+  color: var(--deck-accent-soft);
 }
 
 .deck-top__date {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   font-size: 15px;
+  line-height: 1.6;
   color: var(--deck-ink-2);
+}
+
+/* 참조 화면 좌상단의 알약 배지 */
+.deck-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  padding: 5px 6px 5px 5px;
+  border: 1px solid var(--deck-border);
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--deck-ink-2);
+}
+
+.deck-badge b {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--deck-series);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.deck-badge span {
+  padding-right: 10px;
+}
+
+.deck-meta {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--deck-muted);
 }
 
 .deck-top__actions {
@@ -106,12 +147,13 @@
 .deck-btn {
   appearance: none;
   border: 1px solid var(--deck-border);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.03);
   color: var(--deck-ink-2);
-  border-radius: 8px;
-  padding: 7px 13px;
+  border-radius: 10px;
+  padding: 10px 18px;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
@@ -138,7 +180,7 @@
 }
 
 .deck-btn--primary:hover:not(:disabled) {
-  background: #2a78d6;
+  background: #9333ea;
   color: #ffffff;
 }
 
@@ -147,6 +189,7 @@
   height: 40px;
   padding: 0;
   font-size: 16px;
+  font-weight: 400;
   line-height: 1;
 }
 
@@ -159,22 +202,40 @@
   box-sizing: border-box;
 }
 
-/* 참조 디자인의 카드 상단 타이틀 바 */
+/* 참조 화면의 패널 헤더: 왼쪽 점 세 개, 오른쪽 라벨 */
 .class-card__bar {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 12px;
   flex: none;
-  padding: 11px 16px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--deck-hairline);
 }
 
-.class-card__bar-icon {
-  flex: none;
-  color: var(--deck-ink-2);
+.class-card__dots {
+  display: inline-flex;
+  gap: 7px;
 }
 
-.class-card__bar-title {
+.class-card__dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.class-card__tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-left: auto;
+  padding: 5px 12px;
+  border: 1px solid var(--deck-hairline);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.class-card__tag-name {
   margin: 0;
   font-size: 15px;
   font-weight: 600;
@@ -182,8 +243,7 @@
   color: var(--deck-ink);
 }
 
-.class-card__bar-sub {
-  margin-left: auto;
+.class-card__tag-sub {
   font-size: 12px;
   color: var(--deck-muted);
 }
@@ -193,8 +253,8 @@
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px 18px 12px;
+  gap: 10px;
+  padding: 22px 26px 18px;
 }
 
 .class-card__head {
@@ -207,28 +267,28 @@
 .class-card__hero {
   display: flex;
   align-items: baseline;
-  gap: 3px;
+  gap: 4px;
   color: var(--deck-ink);
 }
 
 .class-card__hero-value {
-  font-size: 46px;
-  font-weight: 650;
+  font-size: 52px;
+  font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
 .class-card__hero-unit {
-  font-size: 16px;
+  font-size: 19px;
   color: var(--deck-ink-2);
 }
 
 .class-card__hero-pending {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--deck-muted);
   border: 1px dashed var(--deck-baseline);
-  border-radius: 8px;
-  padding: 7px 11px;
+  border-radius: 10px;
+  padding: 10px 14px;
 }
 
 .class-card__meta {
@@ -239,8 +299,12 @@
 }
 
 .class-card__delta {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--deck-ink-2);
+}
+
+.class-card__delta-pct {
+  color: var(--deck-muted);
 }
 
 .class-card__delta--up {
@@ -257,61 +321,95 @@
 }
 
 /* ---------- 차트 ---------- */
+/* React Bits Pro "Simple Graph" 설정을 그대로 옮김:
+   선/점 #B19EEF, dashed 격자 2px, 선 3px, 점 4px, curved, gradient fade, 1.0s 1회. */
 
 .att-chart {
+  --graph-accent: #b19eef;
   display: block;
   width: 100%;
   margin-top: auto;
+  overflow: visible;
 }
 
-.att-chart__bar {
-  fill: var(--deck-series);
-}
-
-.att-chart__bar--zero {
-  fill: var(--deck-baseline);
-}
-
-.att-chart__bar-ring {
-  fill: none;
-  stroke: var(--deck-ink);
+.att-chart__grid line {
+  stroke: rgba(255, 255, 255, 0.09);
   stroke-width: 2;
+  stroke-dasharray: 6 9;
+}
+
+.att-chart__fade-top {
+  stop-color: var(--graph-accent);
+  stop-opacity: 0.3;
+}
+
+.att-chart__fade-bottom {
+  stop-color: var(--graph-accent);
+  stop-opacity: 0;
+}
+
+.att-chart__area {
+  animation: att-fade-in 1s ease-out both;
+}
+
+.att-chart__line {
+  fill: none;
+  stroke: var(--graph-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation: att-draw 1s ease-out both;
+}
+
+.att-chart__dot {
+  fill: #ffffff;
+  stroke: var(--graph-accent);
+  stroke-width: 2;
+  animation: att-fade-in 1s ease-out both;
+  transition: r 0.15s ease, filter 0.15s ease;
+}
+
+.att-chart__dot--today {
+  stroke-width: 2.5;
+}
+
+.att-chart__hit {
+  fill: transparent;
+}
+
+.att-chart__point:hover .att-chart__dot {
+  filter: drop-shadow(0 0 7px var(--graph-accent));
 }
 
 .att-chart__pending {
-  fill: none;
-  stroke: var(--deck-baseline);
-  stroke-width: 1.5;
-  stroke-dasharray: 4 5;
-}
-
-.att-chart__baseline {
-  stroke: var(--deck-baseline);
-  stroke-width: 1;
+  stroke: rgba(255, 255, 255, 0.24);
+  stroke-width: 2;
+  stroke-dasharray: 4 6;
 }
 
 .att-chart__value {
   fill: var(--deck-ink-2);
-  font-size: 13px;
+  font-size: 15px;
   text-anchor: middle;
   font-variant-numeric: tabular-nums;
 }
 
 .att-chart__value--today {
   fill: var(--deck-ink);
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 650;
 }
 
 .att-chart__value--pending {
   fill: var(--deck-muted);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400;
 }
 
 .att-chart__x-label {
   fill: var(--deck-muted);
-  font-size: 12px;
+  font-size: 14px;
   text-anchor: middle;
   font-variant-numeric: tabular-nums;
 }
@@ -323,8 +421,35 @@
 
 .att-chart__x-note {
   fill: var(--deck-muted);
-  font-size: 10px;
+  font-size: 12px;
   text-anchor: middle;
+}
+
+@keyframes att-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes att-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .att-chart__line,
+  .att-chart__area,
+  .att-chart__dot {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
 }
 
 /* ---------- 하단 조작부 ---------- */

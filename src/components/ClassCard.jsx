@@ -1,6 +1,5 @@
 "use client";
 
-import { Users } from "lucide-react";
 import AttendanceChart from "@/components/AttendanceChart";
 
 function Delta({ today, previous }) {
@@ -12,10 +11,13 @@ function Delta({ today, previous }) {
     return <span className="class-card__delta class-card__delta--flat">전주와 동일</span>;
   }
   const up = diff > 0;
+  const percent =
+    previous > 0 ? ` (${up ? "+" : "−"}${Math.round((Math.abs(diff) / previous) * 100)}%)` : "";
   return (
     <span className={`class-card__delta ${up ? "class-card__delta--up" : "class-card__delta--down"}`}>
       <span aria-hidden="true">{up ? "▲" : "▼"}</span>
       {` 전주 대비 ${Math.abs(diff)}명 ${up ? "증가" : "감소"}`}
+      <span className="class-card__delta-pct">{percent}</span>
     </span>
   );
 }
@@ -31,9 +33,15 @@ export default function ClassCard({ card }) {
   return (
     <div className="class-card">
       <div className="class-card__bar">
-        <Users className="class-card__bar-icon" size={16} strokeWidth={2} aria-hidden="true" />
-        <h2 className="class-card__bar-title">{card.title}</h2>
-        <span className="class-card__bar-sub">{card.subtitle}</span>
+        <span className="class-card__dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="class-card__tag">
+          <h2 className="class-card__tag-name">{card.title}</h2>
+          <span className="class-card__tag-sub">{card.subtitle}</span>
+        </span>
       </div>
 
       <div className="class-card__body">

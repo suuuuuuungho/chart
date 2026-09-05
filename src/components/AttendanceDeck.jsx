@@ -138,11 +138,16 @@ export default function AttendanceDeck() {
       <DeckBackground />
 
       <div className="deck-side">
+        <span className="deck-badge">
+          <b>주일 예배</b>
+          <span>중등부 · 20개 반</span>
+        </span>
+
         <header className="deck-top">
           <h1 className="deck-top__title">
             중등부 반별
             <br />
-            예배 출석 추이
+            <em>예배 출석 추이</em>
           </h1>
           <p className="deck-top__date">
             {targetDate ? `${longDate(targetDate)} 기준 · 최근 8주` : "\u00a0"}
@@ -213,6 +218,7 @@ export default function AttendanceDeck() {
             {status === "refreshing" ? "새로고침 중…" : "새로고침"}
           </button>
         </div>
+        <p className="deck-meta">← → 방향키 · 스와이프 · 반 이름으로 바로 이동</p>
       </div>
 
       {cards.length > 0 ? (
@@ -224,10 +230,10 @@ export default function AttendanceDeck() {
         >
           <CardSwap
             ref={swapRef}
-            width={500}
-            height={400}
-            cardDistance={60}
-            verticalDistance={70}
+            width={860}
+            height={548}
+            cardDistance={40}
+            verticalDistance={36}
             onIndexChange={setIndex}
           >
             {cards.map((card) => (

@@ -1,32 +1,91 @@
 "use client";
 
+import { useId } from "react";
 import { shortDate } from "@/lib/deck";
 
-const W = 460;
-const H = 216;
-const PAD = { top: 32, right: 12, bottom: 40, left: 12 };
+const W = 820;
+const H = 400;
+const PAD = { top: 46, right: 26, bottom: 46, left: 26 };
 const PLOT_W = W - PAD.left - PAD.right;
 const PLOT_H = H - PAD.top - PAD.bottom;
 const BASELINE = H - PAD.bottom;
-const BAR_RATIO = 0.6;
-const ZERO_STUB = 2;
+const H_GRID_LINES = 4;
 
-/** 상단만 둥근 막대 (baseline 앵커). */
-function barPath(x, y, w, h, r) {
-  const rr = Math.max(0, Math.min(r, w / 2, h));
-  return `M${x},${y + h} L${x},${y + rr} Q${x},${y} ${x + rr},${y} L${x + w - rr},${y} Q${x + w},${y} ${x + w},${y + rr} L${x + w},${y + h} Z`;
+/**
+ * 단조 3차 스플라인. Catmull-Rom과 달리 데이터 사이로 튀어나가지 않아
+ * 실제 출석 수치에 없는 봉우리·골짜기를 만들지 않는다.
+ */
+function curvePath(pts) {
+  const n = pts.length;
+  if (n === 0) return "";
+  if (n === 1) return `M${pts[0].x},${pts[0].y}`;
+  if (n === 2) return `M${pts[0].x},${pts[0].y} L${pts[1].x},${pts[1].y}`;
+
+  const dx = [];
+  const slope = [];
+  for (let i = 0; i < n - 1; i += 1) {
+    dx[i] = pts[i + 1].x - pts[i].x;
+    slope[i] = (pts[i + 1].y - pts[i].y) / dx[i];
+  }
+
+  const m = new Array(n);
+  m[0] = slope[0];
+  m[n - 1] = slope[n - 2];
+  for (let i = 1; i < n - 1; i += 1) {
+    if (slope[i - 1] * slope[i] <= 0) {
+      m[i] = 0;
+    } else {
+      const w1 = 2 * dx[i] + dx[i - 1];
+      const w2 = dx[i] + 2 * dx[i - 1];
+      m[i] = (w1 + w2) / (w1 / slope[i - 1] + w2 / slope[i]);
+    }
+  }
+
+  let d = `M${pts[0].x},${pts[0].y}`;
+  for (let i = 0; i < n - 1; i += 1) {
+    const c1x = pts[i].x + dx[i] / 3;
+    const c1y = pts[i].y + (m[i] * dx[i]) / 3;
+    const c2x = pts[i + 1].x - dx[i] / 3;
+    const c2y = pts[i + 1].y - (m[i + 1] * dx[i]) / 3;
+    d += ` C${c1x},${c1y} ${c2x},${c2y} ${pts[i + 1].x},${pts[i + 1].y}`;
+  }
+  return d;
+}
+
+/** 값이 좁은 범위에 몰려도 추이가 보이도록 위아래로 여유를 준 눈금. */
+function makeScale(values) {
+  const known = values.filter((v) => v !== null);
+  if (known.length === 0) return { min: 0, max: 1 };
+  const lo = Math.min(...known);
+  const hi = Math.max(...known);
+  if (hi === lo) return { min: Math.max(0, lo - 2), max: lo + 2 };
+  const span = hi - lo;
+  return { min: Math.max(0, lo - span * 0.4), max: hi + span * 0.3 };
 }
 
 /**
- * 8주 출석 인원 컬럼 차트. 단일 시리즈이므로 범례 없이 제목이 시리즈를 지칭한다.
- * 당일 막대만 흰 링 + 굵은 라벨로 강조 — 색 단독이 아닌 이중 표기.
+ * 8주 출석 인원 추이. 단일 시리즈라 범례 없이 카드 제목이 시리즈를 지칭하고,
+ * 모든 점에 값을 직접 적는다 (발표 중에는 hover로 확인할 수 없다).
  */
 export default function AttendanceChart({ points }) {
+  const gradientId = useId();
   const values = points.map((p) => (typeof p.present === "number" ? p.present : null));
-  const max = Math.max(1, ...values.filter((v) => v !== null));
-  const band = PLOT_W / points.length;
-  const barW = band * BAR_RATIO;
+  const { min, max } = makeScale(values);
+  const band = PLOT_W / (points.length - 1 || 1);
   const lastIndex = points.length - 1;
+
+  const toY = (v) => BASELINE - ((v - min) / (max - min)) * PLOT_H;
+  const toX = (i) => PAD.left + band * i;
+
+  const known = values
+    .map((v, i) => (v === null ? null : { x: toX(i), y: toY(v), i }))
+    .filter(Boolean);
+
+  const line = curvePath(known);
+  const area =
+    known.length > 1
+      ? `${line} L${known[known.length - 1].x},${BASELINE} L${known[0].x},${BASELINE} Z`
+      : "";
 
   return (
     <svg
@@ -36,76 +95,85 @@ export default function AttendanceChart({ points }) {
       aria-label={`최근 ${points.length}주 출석 인원 추이`}
       preserveAspectRatio="xMidYMid meet"
     >
-      {/* 막대마다 값을 직접 적으므로 격자선과 y축 눈금은 두지 않고 baseline만 남긴다. */}
-      <line
-        x1={PAD.left}
-        y1={BASELINE}
-        x2={W - PAD.right}
-        y2={BASELINE}
-        className="att-chart__baseline"
-      />
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" className="att-chart__fade-top" />
+          <stop offset="100%" className="att-chart__fade-bottom" />
+        </linearGradient>
+      </defs>
+
+      {/* 점선 격자 (가로 + 세로) */}
+      <g className="att-chart__grid">
+        {Array.from({ length: H_GRID_LINES }, (_, row) => {
+          const y = PAD.top + (PLOT_H / (H_GRID_LINES - 1)) * row;
+          return <line key={`h${row}`} x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} />;
+        })}
+        {points.map((point, i) => (
+          <line key={`v${point.date}`} x1={toX(i)} y1={PAD.top} x2={toX(i)} y2={BASELINE} />
+        ))}
+      </g>
+
+      {area ? <path className="att-chart__area" d={area} fill={`url(#${gradientId})`} /> : null}
+      {line ? <path className="att-chart__line" d={line} pathLength="1" /> : null}
 
       {points.map((point, i) => {
-        const cx = PAD.left + band * i + band / 2;
-        const x = cx - barW / 2;
+        const cx = toX(i);
         const isToday = i === lastIndex;
         const value = values[i];
         const label = shortDate(point.date);
 
         if (value === null) {
-          // 미입력: 값이 있는 것처럼 보이지 않도록 전체 높이 점선 윤곽으로만 자리를 표시한다.
+          // 미입력: 값이 있는 것처럼 보이지 않도록 점선 자리 표시만 남긴다.
           return (
             <g key={point.date}>
-              <rect
-                x={x}
-                y={PAD.top}
-                width={barW}
-                height={PLOT_H}
-                rx="4"
+              <line
                 className="att-chart__pending"
+                x1={cx}
+                y1={PAD.top}
+                x2={cx}
+                y2={BASELINE}
               />
-              <text x={cx} y={PAD.top - 12} className="att-chart__value att-chart__value--pending">
+              <text x={cx} y={PAD.top - 16} className="att-chart__value att-chart__value--pending">
                 입력 대기
               </text>
-              <text x={cx} y={BASELINE + 18} className="att-chart__x-label att-chart__x-label--today">
+              <text x={cx} y={BASELINE + 22} className="att-chart__x-label att-chart__x-label--today">
                 {label}
               </text>
-              <text x={cx} y={BASELINE + 33} className="att-chart__x-note">
+              <text x={cx} y={BASELINE + 38} className="att-chart__x-note">
                 오늘
               </text>
             </g>
           );
         }
 
-        const h = value === 0 ? ZERO_STUB : Math.max(ZERO_STUB, (value / max) * PLOT_H);
-        const y = BASELINE - h;
-
+        const cy = toY(value);
         return (
-          <g key={point.date}>
+          <g key={point.date} className="att-chart__point">
             <title>{`${label} · ${value}명`}</title>
-            <path
-              d={barPath(x, y, barW, h, 4)}
-              className={value === 0 ? "att-chart__bar att-chart__bar--zero" : "att-chart__bar"}
+            {/* 커서를 정확히 맞추지 않아도 잡히도록 넉넉한 히트 영역 */}
+            <circle className="att-chart__hit" cx={cx} cy={cy} r={22} />
+            <circle
+              className={isToday ? "att-chart__dot att-chart__dot--today" : "att-chart__dot"}
+              cx={cx}
+              cy={cy}
+              r={isToday ? 6.5 : 5}
             />
-            {isToday ? (
-              <path d={barPath(x, y, barW, h, 4)} className="att-chart__bar-ring" />
-            ) : null}
             <text
               x={cx}
-              y={y - 8}
+              y={cy - 18}
               className={isToday ? "att-chart__value att-chart__value--today" : "att-chart__value"}
             >
               {value}
             </text>
             <text
               x={cx}
-              y={BASELINE + 18}
+              y={BASELINE + 22}
               className={isToday ? "att-chart__x-label att-chart__x-label--today" : "att-chart__x-label"}
             >
               {label}
             </text>
             {isToday ? (
-              <text x={cx} y={BASELINE + 33} className="att-chart__x-note">
+              <text x={cx} y={BASELINE + 38} className="att-chart__x-note">
                 오늘
               </text>
             ) : null}

@@ -41,7 +41,8 @@ const makeSlot = (i, distX, distY, total) => {
   };
 };
 
-const placeNow = (el, slot, skew) =>
+// skew 대신 실제 3D 회전으로 입체감을 준다 (숫자가 비스듬히 늘어나지 않는다).
+const placeNow = (el, slot, skew, tiltY, tiltX) =>
   gsap.set(el, {
     x: slot.x,
     y: slot.y,
@@ -49,6 +50,8 @@ const placeNow = (el, slot, skew) =>
     xPercent: -50,
     yPercent: -50,
     skewY: skew,
+    rotationY: tiltY,
+    rotationX: tiltX,
     transformOrigin: 'center center',
     zIndex: slot.zIndex,
     autoAlpha: slot.visible ? 1 : 0,
@@ -60,11 +63,13 @@ const placeNow = (el, slot, skew) =>
  */
 const CardSwap = forwardRef(function CardSwap(
   {
-    width = 500,
-    height = 400,
-    cardDistance = 60,
-    verticalDistance = 70,
-    skewAmount = 6,
+    width = 860,
+    height = 548,
+    cardDistance = 40,
+    verticalDistance = 36,
+    skewAmount = 0,
+    tiltY = -6,
+    tiltX = 1.5,
     easing = 'power',
     onIndexChange,
     children
@@ -131,9 +136,11 @@ const CardSwap = forwardRef(function CardSwap(
     const total = refs.length;
     order.current.forEach((cardIdx, slotIdx) => {
       const el = refs[cardIdx]?.current;
-      if (el) placeNow(el, makeSlot(slotIdx, cardDistance, verticalDistance, total), skewAmount);
+      if (el) {
+        placeNow(el, makeSlot(slotIdx, cardDistance, verticalDistance, total), skewAmount, tiltY, tiltX);
+      }
     });
-  }, [refs, cardDistance, verticalDistance, skewAmount]);
+  }, [refs, cardDistance, verticalDistance, skewAmount, tiltY, tiltX]);
 
   useEffect(() => {
     // 초기 위치는 항상 0번 카드라 부모에 따로 알릴 필요가 없다.
