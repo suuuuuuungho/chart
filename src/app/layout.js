@@ -12,14 +12,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "CardSwap",
-  description: "A 3D card carousel built with React and GSAP.",
+  title: "중등부 반별 예배 출석 추이",
+  description: "최근 8주 반별 예배 출석 인원을 카드로 넘겨보는 발표 화면.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html
-      lang="en"
+      lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

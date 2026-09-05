@@ -1,11 +1,9 @@
 .card-swap-container {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  transform: translate(5%, 20%);
-  transform-origin: bottom right;
+  position: relative;
+  margin: 0 auto;
 
-  perspective: 900px;
+  perspective: 1200px;
+  transform-style: preserve-3d;
   overflow: visible;
 }
 
@@ -13,9 +11,10 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  border-radius: 12px;
-  border: 1px solid #fff;
-  background: #000;
+  border-radius: 16px;
+  border: 1px solid var(--deck-border, rgba(255, 255, 255, 0.12));
+  background: var(--deck-surface, #1a1a19);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
 
   transform-style: preserve-3d;
   will-change: transform;
@@ -23,14 +22,39 @@
   -webkit-backface-visibility: hidden;
 }
 
-@media (max-width: 768px) {
+/* 스택이 오른쪽 위로 뻗으므로 그만큼 무대에 여백을 준다. */
+.deck-stage {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 96px 140px 8px 8px;
+}
+
+@media (max-width: 1100px) {
   .card-swap-container {
-    transform: scale(0.75) translate(25%, 25%);
+    transform: scale(0.78);
+  }
+  .deck-stage {
+    padding: 60px 90px 4px 4px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 820px) {
   .card-swap-container {
-    transform: scale(0.55) translate(25%, 25%);
+    transform: scale(0.62);
+  }
+  .deck-stage {
+    padding: 32px 50px 0 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .card-swap-container {
+    transform: scale(0.5);
+  }
+  .deck-stage {
+    padding: 8px 20px 0 0;
   }
 }

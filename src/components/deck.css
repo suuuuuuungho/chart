@@ -1,0 +1,476 @@
+/*
+ * 발표 화면은 프로젝터/큰 화면에 띄우는 용도라 어두운 서피스로 고정한다.
+ * 색은 dataviz 기본 팔레트의 다크 스텝 (validate_palette.js 통과: 대비 3:1 이상).
+ */
+.deck-root {
+  color-scheme: dark;
+
+  --deck-plane: #0d0d0d;
+  --deck-surface: #1a1a19;
+  --deck-ink: #ffffff;
+  --deck-ink-2: #c3c2b7;
+  --deck-muted: #898781;
+  --deck-baseline: #383835;
+  --deck-hairline: #2c2c2a;
+  --deck-border: rgba(255, 255, 255, 0.1);
+  --deck-series: #3987e5;
+  --deck-good: #0ca30c;
+  --deck-critical: #d03b3b;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--deck-plane);
+  color: var(--deck-ink);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---------- 상단 바 ---------- */
+
+.deck-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 4px;
+}
+
+.deck-top__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.deck-top__date {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--deck-muted);
+}
+
+.deck-top__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- 버튼 ---------- */
+
+.deck-btn {
+  appearance: none;
+  border: 1px solid var(--deck-border);
+  background: transparent;
+  color: var(--deck-ink-2);
+  border-radius: 8px;
+  padding: 7px 13px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.deck-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--deck-ink);
+}
+
+.deck-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.deck-btn:focus-visible {
+  outline: 2px solid var(--deck-series);
+  outline-offset: 2px;
+}
+
+.deck-btn--primary {
+  background: var(--deck-series);
+  border-color: var(--deck-series);
+  color: #ffffff;
+}
+
+.deck-btn--primary:hover:not(:disabled) {
+  background: #2a78d6;
+  color: #ffffff;
+}
+
+.deck-btn--round {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ---------- 카드 ---------- */
+
+.class-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  padding: 22px 24px 16px;
+  box-sizing: border-box;
+}
+
+.class-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.class-card__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--deck-ink);
+}
+
+.class-card__subtitle {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--deck-muted);
+}
+
+.class-card__hero {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  color: var(--deck-ink);
+}
+
+.class-card__hero-value {
+  font-size: 52px;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.class-card__hero-unit {
+  font-size: 17px;
+  color: var(--deck-ink-2);
+}
+
+.class-card__hero-pending {
+  font-size: 15px;
+  color: var(--deck-muted);
+  border: 1px dashed var(--deck-baseline);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.class-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.class-card__delta {
+  font-size: 13px;
+  color: var(--deck-ink-2);
+}
+
+.class-card__delta--up {
+  color: var(--deck-good);
+}
+
+.class-card__delta--down {
+  color: var(--deck-critical);
+}
+
+.class-card__delta--flat,
+.class-card__delta--muted {
+  color: var(--deck-muted);
+}
+
+/* ---------- 차트 ---------- */
+
+.att-chart {
+  display: block;
+  width: 100%;
+  margin-top: auto;
+}
+
+.att-chart__bar {
+  fill: var(--deck-series);
+}
+
+.att-chart__bar--zero {
+  fill: var(--deck-baseline);
+}
+
+.att-chart__bar-ring {
+  fill: none;
+  stroke: var(--deck-ink);
+  stroke-width: 2;
+}
+
+.att-chart__pending {
+  fill: none;
+  stroke: var(--deck-baseline);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 5;
+}
+
+.att-chart__baseline {
+  stroke: var(--deck-baseline);
+  stroke-width: 1;
+}
+
+.att-chart__value {
+  fill: var(--deck-ink-2);
+  font-size: 13px;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.att-chart__value--today {
+  fill: var(--deck-ink);
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.att-chart__value--pending {
+  fill: var(--deck-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.att-chart__x-label {
+  fill: var(--deck-muted);
+  font-size: 12px;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.att-chart__x-label--today {
+  fill: var(--deck-ink);
+  font-weight: 600;
+}
+
+.att-chart__x-note {
+  fill: var(--deck-muted);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+/* ---------- 하단 조작부 ---------- */
+
+.deck-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px 24px 10px;
+}
+
+.deck-controls__position {
+  min-width: 150px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--deck-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.deck-controls__position b {
+  color: var(--deck-ink);
+  font-weight: 600;
+}
+
+.deck-jump {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 24px 22px;
+}
+
+.deck-jump__chip {
+  appearance: none;
+  border: 1px solid var(--deck-border);
+  background: transparent;
+  color: var(--deck-muted);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.deck-jump__chip:hover {
+  color: var(--deck-ink);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.deck-jump__chip[aria-current="true"] {
+  background: var(--deck-series);
+  border-color: var(--deck-series);
+  color: #ffffff;
+}
+
+.deck-jump__chip:focus-visible {
+  outline: 2px solid var(--deck-series);
+  outline-offset: 2px;
+}
+
+/* ---------- 상태 표시 ---------- */
+
+.deck-state {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--deck-ink-2);
+  font-size: 15px;
+}
+
+.deck-state--error {
+  color: var(--deck-critical);
+}
+
+.deck-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--deck-border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--deck-muted);
+}
+
+/* ---------- 당일 입력 ---------- */
+
+.live-input {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+  box-sizing: border-box;
+}
+
+.live-input__intro {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--deck-ink-2);
+}
+
+.live-input__note {
+  margin: 0 0 18px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--deck-muted);
+}
+
+.live-input__group {
+  margin: 0 0 18px;
+  border: 1px solid var(--deck-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--deck-surface);
+}
+
+.live-input__group-title {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--deck-muted);
+  border-bottom: 1px solid var(--deck-hairline);
+}
+
+.live-input__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--deck-hairline);
+}
+
+.live-input__row:last-child {
+  border-bottom: none;
+}
+
+.live-input__label {
+  flex: 1;
+  font-size: 15px;
+  color: var(--deck-ink);
+}
+
+.live-input__prev {
+  font-size: 12px;
+  color: var(--deck-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.live-input__field {
+  width: 84px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--deck-baseline);
+  background: #111110;
+  color: var(--deck-ink);
+  font: inherit;
+  font-size: 16px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.live-input__field:focus {
+  outline: 2px solid var(--deck-series);
+  outline-offset: 1px;
+  border-color: var(--deck-series);
+}
+
+.live-input__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--deck-ink-2);
+}
+
+.live-input__total b {
+  color: var(--deck-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 입력 패널(발표 화면 위) ---------- */
+
+.deck-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: var(--deck-plane);
+  overflow-y: auto;
+}
+
+.deck-panel__head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--deck-plane);
+  border-bottom: 1px solid var(--deck-hairline);
+}
+
+.deck-panel__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
