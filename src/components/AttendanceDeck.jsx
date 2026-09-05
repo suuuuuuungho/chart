@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CardSwap, { Card } from "@/components/CardSwap";
 import ClassCard from "@/components/ClassCard";
+import DeckBackground from "@/components/DeckBackground";
 import TodayInputPanel from "@/components/TodayInputPanel";
 import { isISODate, longDate, resolveTargetSunday, shortLabel } from "@/lib/deck";
 import { pruneOldLiveInput, readLiveInput } from "@/lib/liveInput";
@@ -101,11 +102,23 @@ export default function AttendanceDeck() {
 
   const handlePointerDown = (event) => {
     pointer.current = { x: event.clientX, y: event.clientY };
+    // 스테이지는 화면 일부만 차지한다. 카드에서 시작해 스테이지 밖에서 손을 떼도
+    // pointerup이 여기로 오도록 포인터를 붙잡아 둔다.
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // 캡처를 지원하지 않으면 스테이지 안에서 끝나는 스와이프만 인식된다.
+    }
   };
 
   const handlePointerUp = (event) => {
     const start = pointer.current;
     pointer.current = null;
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // 이미 해제됐으면 무시
+    }
     if (!start) return;
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
@@ -114,18 +127,77 @@ export default function AttendanceDeck() {
     else goPrev();
   };
 
+  const handlePointerCancel = () => {
+    pointer.current = null;
+  };
+
   const current = cards[index];
 
   return (
-    <div className="deck-root">
-      <header className="deck-top">
-        <div>
-          <h1 className="deck-top__title">중등부 반별 예배 출석 추이</h1>
+    <div className="deck-root deck-root--backdrop">
+      <DeckBackground />
+
+      <div className="deck-side">
+        <header className="deck-top">
+          <h1 className="deck-top__title">
+            중등부 반별
+            <br />
+            예배 출석 추이
+          </h1>
           <p className="deck-top__date">
-            {targetDate ? `${longDate(targetDate)} 기준 · 최근 8주` : " "}
+            {targetDate ? `${longDate(targetDate)} 기준 · 최근 8주` : "\u00a0"}
             {data?.todayInDb ? " · 당일 데이터 적재 완료" : ""}
           </p>
-        </div>
+        </header>
+
+        {status === "error" ? (
+          <p className="deck-state deck-state--error">
+            출석 데이터를 불러오지 못했습니다. 새로고침을 눌러 다시 시도해 주세요.
+          </p>
+        ) : null}
+
+        {status === "loading" ? <p className="deck-state">불러오는 중…</p> : null}
+
+        {cards.length > 0 ? (
+          <>
+            <div className="deck-controls">
+              <button
+                type="button"
+                className="deck-btn deck-btn--round"
+                onClick={goPrev}
+                aria-label="이전 반"
+              >
+                ‹
+              </button>
+              <span className="deck-controls__position" aria-live="polite">
+                {index + 1} / {cards.length} · <b>{current?.title}</b>
+              </span>
+              <button
+                type="button"
+                className="deck-btn deck-btn--round"
+                onClick={goNext}
+                aria-label="다음 반"
+              >
+                ›
+              </button>
+            </div>
+
+            <nav className="deck-jump" aria-label="반 바로가기">
+              {cards.map((card, i) => (
+                <button
+                  key={card.key}
+                  type="button"
+                  className="deck-jump__chip"
+                  aria-current={i === index}
+                  onClick={() => swapRef.current?.goTo(i)}
+                >
+                  {shortLabel(card.key)}
+                </button>
+              ))}
+            </nav>
+          </>
+        ) : null}
+
         <div className="deck-top__actions">
           {!data?.todayInDb ? (
             <button type="button" className="deck-btn" onClick={() => setPanelOpen(true)}>
@@ -141,68 +213,30 @@ export default function AttendanceDeck() {
             {status === "refreshing" ? "새로고침 중…" : "새로고침"}
           </button>
         </div>
-      </header>
-
-      {status === "error" ? (
-        <div className="deck-state deck-state--error">
-          출석 데이터를 불러오지 못했습니다. 새로고침을 눌러 다시 시도해 주세요.
-        </div>
-      ) : null}
-
-      {status === "loading" ? <div className="deck-state">불러오는 중…</div> : null}
+      </div>
 
       {cards.length > 0 ? (
-        <>
-          <div
-            className="deck-stage"
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
+        <div
+          className="deck-stage"
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+        >
+          <CardSwap
+            ref={swapRef}
+            width={500}
+            height={400}
+            cardDistance={60}
+            verticalDistance={70}
+            onIndexChange={setIndex}
           >
-            <CardSwap ref={swapRef} width={520} height={400} onIndexChange={setIndex}>
-              {cards.map((card) => (
-                <Card key={card.key}>
-                  <ClassCard card={card} />
-                </Card>
-              ))}
-            </CardSwap>
-          </div>
-
-          <div className="deck-controls">
-            <button
-              type="button"
-              className="deck-btn deck-btn--round"
-              onClick={goPrev}
-              aria-label="이전 반"
-            >
-              ‹
-            </button>
-            <span className="deck-controls__position" aria-live="polite">
-              {index + 1} / {cards.length} · <b>{current?.title}</b>
-            </span>
-            <button
-              type="button"
-              className="deck-btn deck-btn--round"
-              onClick={goNext}
-              aria-label="다음 반"
-            >
-              ›
-            </button>
-          </div>
-
-          <nav className="deck-jump" aria-label="반 바로가기">
-            {cards.map((card, i) => (
-              <button
-                key={card.key}
-                type="button"
-                className="deck-jump__chip"
-                aria-current={i === index}
-                onClick={() => swapRef.current?.goTo(i)}
-              >
-                {shortLabel(card.key)}
-              </button>
+            {cards.map((card) => (
+              <Card key={card.key}>
+                <ClassCard card={card} />
+              </Card>
             ))}
-          </nav>
-        </>
+          </CardSwap>
+        </div>
       ) : null}
 
       {panelOpen && targetDate ? (

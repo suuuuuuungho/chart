@@ -60,12 +60,11 @@ const placeNow = (el, slot, skew) =>
  */
 const CardSwap = forwardRef(function CardSwap(
   {
-    width = 520,
+    width = 500,
     height = 400,
-    cardDistance = 52,
-    verticalDistance = 56,
-    // 차트 숫자를 읽어야 하는 화면이라 기울이지 않는다.
-    skewAmount = 0,
+    cardDistance = 60,
+    verticalDistance = 70,
+    skewAmount = 6,
     easing = 'power',
     onIndexChange,
     children

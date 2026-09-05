@@ -1,0 +1,40 @@
+.deck-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  /* 셰이더가 뜨기 전과 투명한 부분의 바탕 */
+  background: #0d0d0d;
+  /* 덱의 스와이프·클릭·키 조작을 가리지 않는다. */
+  pointer-events: none;
+}
+
+.deck-bg__layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* ColorBends에는 fadeTop 프롭이 없어 마스크로 위쪽을 걷어낸다. */
+.deck-bg__bends {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 38%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 38%, #000 100%);
+}
+
+.deck-bg__dots {
+  opacity: 0.85;
+}
+
+.deck-bg__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(13, 13, 13, 0.82) 0%, rgba(13, 13, 13, 0.25) 22%, rgba(13, 13, 13, 0) 45%),
+    linear-gradient(to top, rgba(13, 13, 13, 0.78) 0%, rgba(13, 13, 13, 0.2) 20%, rgba(13, 13, 13, 0) 40%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-bg__bends,
+  .deck-bg__dots {
+    display: none;
+  }
+}

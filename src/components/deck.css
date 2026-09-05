@@ -25,32 +25,79 @@
   font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+/*
+ * 발표 화면: 애니메이션 배경 위에 왼쪽 텍스트 + 오른쪽 아래로 흘러나가는 카드 스택.
+ * 스택이 화면 밖으로 빠져나가는 게 디자인이라 넘치는 부분은 잘라낸다.
+ */
+.deck-root--backdrop {
+  position: relative;
+  z-index: 0;
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* 위치 지정은 각 요소가 직접 한다 (여기서 position을 강제하면 스테이지의 absolute를 덮어쓴다). */
+.deck-root--backdrop > *:not(.deck-bg) {
+  z-index: 1;
+}
+
+.deck-side {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  justify-content: center;
+  width: min(44%, 560px);
+  height: 100%;
+  padding: 40px 0 40px 56px;
+  box-sizing: border-box;
+}
+
+/* 좁은 화면에서는 좌우 배치를 세로로 쌓고 페이지가 자연스럽게 늘어나게 둔다. */
+@media (max-width: 768px) {
+  .deck-root--backdrop {
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .deck-side {
+    width: 100%;
+    height: auto;
+    padding: 32px 20px 4px;
+  }
+
+  .deck-jump {
+    max-width: none;
+  }
+}
+
 /* ---------- 상단 바 ---------- */
 
 .deck-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 20px 24px 4px;
+  margin: 0;
 }
 
 .deck-top__title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: clamp(30px, 3.4vw, 46px);
+  font-weight: 650;
+  line-height: 1.16;
+  letter-spacing: -0.03em;
 }
 
 .deck-top__date {
-  margin: 2px 0 0;
-  font-size: 13px;
-  color: var(--deck-muted);
+  margin: 14px 0 0;
+  font-size: 15px;
+  color: var(--deck-ink-2);
 }
 
 .deck-top__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -108,31 +155,53 @@
 .class-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   height: 100%;
-  padding: 22px 24px 16px;
   box-sizing: border-box;
+}
+
+/* 참조 디자인의 카드 상단 타이틀 바 */
+.class-card__bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--deck-hairline);
+}
+
+.class-card__bar-icon {
+  flex: none;
+  color: var(--deck-ink-2);
+}
+
+.class-card__bar-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--deck-ink);
+}
+
+.class-card__bar-sub {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--deck-muted);
+}
+
+.class-card__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px 12px;
 }
 
 .class-card__head {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-}
-
-.class-card__title {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--deck-ink);
-}
-
-.class-card__subtitle {
-  margin: 3px 0 0;
-  font-size: 13px;
-  color: var(--deck-muted);
 }
 
 .class-card__hero {
@@ -143,23 +212,23 @@
 }
 
 .class-card__hero-value {
-  font-size: 52px;
+  font-size: 46px;
   font-weight: 650;
   line-height: 1;
   letter-spacing: -0.03em;
 }
 
 .class-card__hero-unit {
-  font-size: 17px;
+  font-size: 16px;
   color: var(--deck-ink-2);
 }
 
 .class-card__hero-pending {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--deck-muted);
   border: 1px dashed var(--deck-baseline);
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 7px 11px;
 }
 
 .class-card__meta {
@@ -263,9 +332,7 @@
 .deck-controls {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 14px;
-  padding: 4px 24px 10px;
 }
 
 .deck-controls__position {
@@ -284,9 +351,8 @@
 .deck-jump {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 6px;
-  padding: 0 24px 22px;
+  max-width: 440px;
 }
 
 .deck-jump__chip {
@@ -321,12 +387,7 @@
 /* ---------- 상태 표시 ---------- */
 
 .deck-state {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-  text-align: center;
+  margin: 0;
   color: var(--deck-ink-2);
   font-size: 15px;
 }
