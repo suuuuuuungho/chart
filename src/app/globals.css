@@ -1,3 +1,4 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -131,6 +132,6 @@
 
 /* 본문 서체 */
 body {
-  font-family: "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, "Pretendard",
-    "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
 }

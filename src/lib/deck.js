@@ -75,8 +75,11 @@ export function shortDate(iso) {
   return `${Number(m)}/${Number(d)}`;
 }
 
-/** "2026-09-06" -> "2026년 9월 6일" */
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+/** "2026-09-06" -> "2026년 9월 6일 일" */
 export function longDate(iso) {
   const [y, m, d] = iso.split("-");
-  return `${y}년 ${Number(m)}월 ${Number(d)}일`;
+  const day = WEEKDAYS[parseISODate(iso).getDay()];
+  return `${y}년 ${Number(m)}월 ${Number(d)}일 ${day}`;
 }

@@ -32,8 +32,10 @@
 }
 
 /*
- * 스택 앵커. 맨 앞 카드가 화면 오른쪽 41px / 아래 81px 지점에 통째로 놓이고,
- * 뒤 카드만 오른쪽으로 흘러나간다. 카드 위쪽 여백에 맞춰 세로 간격도 좁혀 뒀다.
+ * 스택 앵커. 스테이지 높이를 "그때 실제로 렌더되는 카드 높이"와 같게 두고 세로 중앙에 놓으면,
+ * 카드 위·아래 바깥 여백이 항상 같아진다. (컨테이너는 스테이지 오른쪽 아래에 붙고,
+ * scale의 기준점도 오른쪽 아래라 카드 하단이 스테이지 하단에 고정된다.)
+ * right는 3D 기울기로 넓어지는 바운딩 박스만큼 더 띄운 값이다.
  */
 .card-swap-container {
   transform: none;
@@ -41,33 +43,42 @@
 
 .deck-stage {
   position: absolute;
-  right: 64px;
-  bottom: 98px;
+  right: 84px;
+  top: 50%;
+  transform: translateY(calc(-50% - 2px));
   width: 64%;
-  height: 78%;
-  min-height: 470px;
+  height: 492px;
 }
 
 @media (max-width: 1400px) {
   .card-swap-container {
-    transform: scale(0.78);
+    transform: scale(0.9);
   }
   .deck-stage {
-    right: 28px;
-    bottom: 56px;
+    right: 84px;
     width: 70%;
-    min-height: 400px;
+    height: 443px;
   }
 }
 
-@media (max-height: 700px) {
+@media (max-width: 1180px) {
   .card-swap-container {
-    transform: scale(0.74);
+    transform: scale(0.72);
   }
   .deck-stage {
-    right: 26px;
-    bottom: 48px;
-    min-height: 360px;
+    right: 40px;
+    width: 76%;
+    height: 354px;
+  }
+}
+
+@media (max-height: 640px) {
+  .card-swap-container {
+    transform: scale(0.68);
+  }
+  .deck-stage {
+    right: 36px;
+    height: 335px;
   }
 }
 

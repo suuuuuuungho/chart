@@ -133,9 +133,6 @@ export default function AttendanceChart({ points }) {
                 x2={cx}
                 y2={BASELINE}
               />
-              <text x={cx} y={PAD.top - 16} className="att-chart__value att-chart__value--pending">
-                입력 대기
-              </text>
               <text x={cx} y={BASELINE + 22} className="att-chart__x-label att-chart__x-label--today">
                 {label}
               </text>

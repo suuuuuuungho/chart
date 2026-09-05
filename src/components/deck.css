@@ -23,8 +23,8 @@
   min-height: 100dvh;
   background: var(--deck-plane);
   color: var(--deck-ink);
-  font-family: "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, "Pretendard",
-    "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
 }
 
 /*
@@ -49,7 +49,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 22px;
   justify-content: center;
   width: min(34%, 480px);
   height: 100%;
@@ -69,11 +69,7 @@
   .deck-side {
     width: 100%;
     height: auto;
-    padding: 32px 20px 4px;
-  }
-
-  .deck-jump {
-    max-width: none;
+    padding: 36px 20px 8px;
   }
 }
 

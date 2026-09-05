@@ -4,24 +4,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CardSwap, { Card } from "@/components/CardSwap";
 import ClassCard from "@/components/ClassCard";
 import DeckBackground from "@/components/DeckBackground";
-import TodayInputPanel from "@/components/TodayInputPanel";
-import { isISODate, longDate, resolveTargetSunday, shortLabel } from "@/lib/deck";
-import { pruneOldLiveInput, readLiveInput } from "@/lib/liveInput";
+import { isISODate, longDate, resolveTargetSunday } from "@/lib/deck";
+import { liveKey, pruneOldLiveInput, readLiveInput } from "@/lib/liveInput";
 import "@/components/deck.css";
-
-const SWIPE_THRESHOLD = 48;
 
 export default function AttendanceDeck() {
   const [targetDate, setTargetDate] = useState(null);
   const [data, setData] = useState(null);
   const [live, setLive] = useState({});
   const [status, setStatus] = useState("loading");
-  const [reloadToken, setReloadToken] = useState(0);
-  const [index, setIndex] = useState(0);
-  const [panelOpen, setPanelOpen] = useState(false);
 
   const swapRef = useRef(null);
-  const pointer = useRef(null);
 
   // 기준 일요일은 브라우저의 로컬 시간대에서 계산한다 (서버는 UTC라 하루가 어긋날 수 있다).
   useEffect(() => {
@@ -50,12 +43,18 @@ export default function AttendanceDeck() {
     return () => {
       cancelled = true;
     };
-  }, [reloadToken]);
-
-  const refresh = useCallback(() => {
-    setStatus((prev) => (prev === "ready" ? "refreshing" : "loading"));
-    setReloadToken((n) => n + 1);
   }, []);
+
+  // /input은 별도 화면이라, 거기서 입력한 값이 이 화면에 바로 반영되도록 저장소 변경을 듣는다.
+  useEffect(() => {
+    if (!targetDate) return undefined;
+    const key = liveKey(targetDate);
+    const onStorage = (event) => {
+      if (event.key === null || event.key === key) setLive(readLiveInput(targetDate));
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [targetDate]);
 
   // 당일 값: DB에 그 주가 적재됐으면 DB 우선, 아니면 이 기기의 임시 입력값.
   const cards = useMemo(() => {
@@ -83,8 +82,9 @@ export default function AttendanceDeck() {
   const goNext = useCallback(() => swapRef.current?.next(), []);
   const goPrev = useCallback(() => swapRef.current?.prev(), []);
 
+  // 화면에 조작 버튼을 두지 않으므로 방향키(발표용 리모컨 포함)로만 넘긴다.
   useEffect(() => {
-    if (panelOpen || cards.length === 0) return undefined;
+    if (cards.length === 0) return undefined;
     const onKey = (event) => {
       const tag = event.target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
@@ -98,40 +98,7 @@ export default function AttendanceDeck() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [panelOpen, cards.length, goNext, goPrev]);
-
-  const handlePointerDown = (event) => {
-    pointer.current = { x: event.clientX, y: event.clientY };
-    // 스테이지는 화면 일부만 차지한다. 카드에서 시작해 스테이지 밖에서 손을 떼도
-    // pointerup이 여기로 오도록 포인터를 붙잡아 둔다.
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {
-      // 캡처를 지원하지 않으면 스테이지 안에서 끝나는 스와이프만 인식된다.
-    }
-  };
-
-  const handlePointerUp = (event) => {
-    const start = pointer.current;
-    pointer.current = null;
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // 이미 해제됐으면 무시
-    }
-    if (!start) return;
-    const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
-    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) <= Math.abs(dy)) return;
-    if (dx < 0) goNext();
-    else goPrev();
-  };
-
-  const handlePointerCancel = () => {
-    pointer.current = null;
-  };
-
-  const current = cards[index];
+  }, [cards.length, goNext, goPrev]);
 
   return (
     <div className="deck-root deck-root--backdrop">
@@ -139,102 +106,36 @@ export default function AttendanceDeck() {
 
       <div className="deck-side">
         <span className="deck-badge">
-          <b>주일 예배</b>
+          <b>중등부예배</b>
           <span>중등부 · 20개 반</span>
         </span>
 
         <header className="deck-top">
           <h1 className="deck-top__title">
-            중등부 반별
+            중등부 예배 반별
             <br />
             <em>예배 출석 추이</em>
           </h1>
           <p className="deck-top__date">
-            {targetDate ? `${longDate(targetDate)} 기준 · 최근 8주` : "\u00a0"}
-            {data?.todayInDb ? " · 당일 데이터 적재 완료" : ""}
+            {targetDate ? `${longDate(targetDate)} 기준 · 최근 8주` : " "}
           </p>
         </header>
 
         {status === "error" ? (
           <p className="deck-state deck-state--error">
-            출석 데이터를 불러오지 못했습니다. 새로고침을 눌러 다시 시도해 주세요.
+            출석 데이터를 불러오지 못했습니다. 새로고침해 주세요.
           </p>
         ) : null}
-
-        {status === "loading" ? <p className="deck-state">불러오는 중…</p> : null}
-
-        {cards.length > 0 ? (
-          <>
-            <div className="deck-controls">
-              <button
-                type="button"
-                className="deck-btn deck-btn--round"
-                onClick={goPrev}
-                aria-label="이전 반"
-              >
-                ‹
-              </button>
-              <span className="deck-controls__position" aria-live="polite">
-                {index + 1} / {cards.length} · <b>{current?.title}</b>
-              </span>
-              <button
-                type="button"
-                className="deck-btn deck-btn--round"
-                onClick={goNext}
-                aria-label="다음 반"
-              >
-                ›
-              </button>
-            </div>
-
-            <nav className="deck-jump" aria-label="반 바로가기">
-              {cards.map((card, i) => (
-                <button
-                  key={card.key}
-                  type="button"
-                  className="deck-jump__chip"
-                  aria-current={i === index}
-                  onClick={() => swapRef.current?.goTo(i)}
-                >
-                  {shortLabel(card.key)}
-                </button>
-              ))}
-            </nav>
-          </>
-        ) : null}
-
-        <div className="deck-top__actions">
-          {!data?.todayInDb ? (
-            <button type="button" className="deck-btn" onClick={() => setPanelOpen(true)}>
-              당일 인원 입력
-            </button>
-          ) : null}
-          <button
-            type="button"
-            className="deck-btn deck-btn--primary"
-            onClick={refresh}
-            disabled={status === "loading" || status === "refreshing"}
-          >
-            {status === "refreshing" ? "새로고침 중…" : "새로고침"}
-          </button>
-        </div>
-        <p className="deck-meta">← → 방향키 · 스와이프 · 반 이름으로 바로 이동</p>
       </div>
 
       {cards.length > 0 ? (
-        <div
-          className="deck-stage"
-          onPointerDown={handlePointerDown}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerCancel}
-        >
+        <div className="deck-stage">
           <CardSwap
             ref={swapRef}
             width={860}
-            height={548}
+            height={492}
             cardDistance={40}
             verticalDistance={36}
-            onIndexChange={setIndex}
           >
             {cards.map((card) => (
               <Card key={card.key}>
@@ -242,27 +143,6 @@ export default function AttendanceDeck() {
               </Card>
             ))}
           </CardSwap>
-        </div>
-      ) : null}
-
-      {panelOpen && targetDate ? (
-        <div className="deck-panel" role="dialog" aria-label="당일 출석 인원 입력">
-          <div className="deck-panel__head">
-            <h2 className="deck-panel__title">당일 출석 인원 입력</h2>
-            <button
-              type="button"
-              className="deck-btn deck-btn--primary"
-              onClick={() => setPanelOpen(false)}
-            >
-              발표 화면으로
-            </button>
-          </div>
-          <TodayInputPanel
-            targetDate={targetDate}
-            previousDate={data?.previousDate}
-            lastWeekByClass={data?.lastWeekByClass}
-            onChange={setLive}
-          />
         </div>
       ) : null}
     </div>

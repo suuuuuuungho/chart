@@ -64,7 +64,7 @@ const placeNow = (el, slot, skew, tiltY, tiltX) =>
 const CardSwap = forwardRef(function CardSwap(
   {
     width = 860,
-    height = 548,
+    height = 492,
     cardDistance = 40,
     verticalDistance = 36,
     skewAmount = 0,
