@@ -27,6 +27,26 @@ export const CARDS = [
   { key: "전체", title: "전체", subtitle: "중등부 전체 합계", classes: ALL_CLASSES },
 ];
 
+// 학년별 그래프 색. dataviz validate_palette.js 통과 (surface #000000, dark):
+// 노랑/초록/민트/파랑 각각 단독 사용이라 상호 대비만 개별 확인했고,
+// 전체(레드)·지각(핑크)만 한 차트에 같이 그려지므로 그 둘은 상호 CVD/일반 시야 분리까지 통과시켰다.
+const GRADE_COLOR = {
+  "중등부 1학년": "#c98500",
+  "중등부 2학년": "#3a9c14",
+  "중등부 3학년": "#08a3a2",
+};
+const NEWCOMER_COLOR = "#3987e5";
+const TOTAL_COLOR = "#ad2f26";
+export const LATE_COLOR = "#cc66aa";
+
+export const CARD_COLORS = Object.fromEntries(
+  CARDS.map((card) => {
+    if (card.key === "전체") return [card.key, TOTAL_COLOR];
+    if (card.key === "신입부") return [card.key, NEWCOMER_COLOR];
+    return [card.key, GRADE_COLOR[card.subtitle]];
+  })
+);
+
 // 카드 바로가기 칩에 쓰는 짧은 라벨 ("1-1반" -> "1-1").
 export function shortLabel(key) {
   if (key === "신입부" || key === "전체") return key;

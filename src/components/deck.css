@@ -328,6 +328,28 @@
   gap: 10px;
 }
 
+/* 전체 카드처럼 시리즈가 둘 이상일 때만 붙는 범례 (단일 시리즈 카드는 제목이 시리즈를 지칭한다). */
+.chart-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chart-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--deck-ink-2);
+}
+
+.chart-legend__item i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
 .class-card__delta {
   font-size: 15px;
   color: var(--deck-ink-2);
@@ -578,13 +600,6 @@
   color: var(--deck-ink-2);
 }
 
-.live-input__note {
-  margin: 0 0 18px;
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: var(--deck-muted);
-}
-
 .live-input__group {
   margin: 0 0 18px;
   border: 1px solid var(--deck-border);
@@ -606,7 +621,8 @@
 .live-input__row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px 12px;
   padding: 9px 14px;
   border-bottom: 1px solid var(--deck-hairline);
 }
@@ -627,9 +643,28 @@
   font-variant-numeric: tabular-nums;
 }
 
+.live-input__fields {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.live-input__field-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-input__field-label {
+  font-size: 12px;
+  color: var(--deck-muted);
+  white-space: nowrap;
+}
+
 .live-input__field {
-  width: 84px;
-  padding: 7px 10px;
+  width: 60px;
+  padding: 7px 8px;
   border-radius: 8px;
   border: 1px solid var(--deck-baseline);
   background: #111110;
@@ -644,6 +679,16 @@
   outline: 2px solid var(--deck-series);
   outline-offset: 1px;
   border-color: var(--deck-series);
+}
+
+.live-input__derived {
+  font-size: 12px;
+  color: var(--deck-ink-2);
+  padding: 6px 10px;
+  border: 1px dashed var(--deck-baseline);
+  border-radius: 8px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .live-input__foot {

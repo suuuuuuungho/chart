@@ -22,7 +22,7 @@ function Delta({ today, previous }) {
   );
 }
 
-export default function ClassCard({ card, yScale }) {
+export default function ClassCard({ card, yScale, color, lateColor, latePoints }) {
   const points = card.points;
   const todayPoint = points[points.length - 1];
   const today = todayPoint?.present ?? null;
@@ -53,6 +53,18 @@ export default function ClassCard({ card, yScale }) {
                 일부 입력 {todayPoint.enteredClasses}/{todayPoint.totalClasses}반
               </span>
             ) : null}
+            {latePoints ? (
+              <span className="chart-legend">
+                <span className="chart-legend__item">
+                  <i style={{ background: color }} />
+                  참석
+                </span>
+                <span className="chart-legend__item">
+                  <i style={{ background: lateColor }} />
+                  지각
+                </span>
+              </span>
+            ) : null}
           </div>
           <div className="class-card__hero">
             {typeof today === "number" ? (
@@ -66,7 +78,12 @@ export default function ClassCard({ card, yScale }) {
           </div>
         </div>
 
-        <AttendanceChart points={points} yScale={yScale} />
+        <AttendanceChart
+          points={points}
+          yScale={yScale}
+          color={color}
+          secondary={latePoints ? { values: latePoints, color: lateColor } : undefined}
+        />
       </div>
     </div>
   );

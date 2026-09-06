@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CardSwap, { Card } from "@/components/CardSwap";
 import ClassCard from "@/components/ClassCard";
 import DeckBackground from "@/components/DeckBackground";
-import { isISODate, longDate, makeScale, resolveTargetSunday } from "@/lib/deck";
+import { CARD_COLORS, LATE_COLOR, isISODate, longDate, makeScale, resolveTargetSunday } from "@/lib/deck";
 import { liveKey, pruneOldLiveInput, readLiveInput } from "@/lib/liveInput";
 import "@/components/deck.css";
 
@@ -57,25 +57,33 @@ export default function AttendanceDeck() {
   }, [targetDate]);
 
   // 당일 값: DB에 그 주가 적재됐으면 DB 우선, 아니면 이 기기의 임시 입력값.
+  // 지각은 반별 숫자에는 더하지 않고("참석"만 반영), "전체" 카드의 지각 시리즈에만 합산한다.
   const cards = useMemo(() => {
     if (!data) return [];
     return data.cards.map((card) => {
       const points = card.points.slice();
       const lastIndex = points.length - 1;
       const last = points[lastIndex];
+      const latePoints = card.key === "전체" ? points.map(() => null) : undefined;
       if (last.present === null && !data.todayInDb) {
-        const entered = card.classes.filter((name) => typeof live[name] === "number");
+        const entered = card.classes.filter((name) => typeof live[name]?.present === "number");
         if (entered.length > 0) {
           points[lastIndex] = {
             ...last,
-            present: entered.reduce((sum, name) => sum + live[name], 0),
+            present: entered.reduce((sum, name) => sum + live[name].present, 0),
             source: "live",
             enteredClasses: entered.length,
             totalClasses: card.classes.length,
           };
         }
+        if (latePoints) {
+          const lateEntered = card.classes.filter((name) => typeof live[name]?.late === "number");
+          if (lateEntered.length > 0) {
+            latePoints[lastIndex] = lateEntered.reduce((sum, name) => sum + live[name].late, 0);
+          }
+        }
       }
-      return { ...card, points };
+      return { ...card, points, latePoints, color: CARD_COLORS[card.key] };
     });
   }, [data, live]);
 
@@ -152,7 +160,13 @@ export default function AttendanceDeck() {
           >
             {cards.map((card) => (
               <Card key={card.key}>
-                <ClassCard card={card} yScale={card.key === "전체" ? undefined : classScale} />
+                <ClassCard
+                  card={card}
+                  yScale={card.key === "전체" ? undefined : classScale}
+                  color={card.color}
+                  lateColor={card.key === "전체" ? LATE_COLOR : undefined}
+                  latePoints={card.key === "전체" ? card.latePoints : undefined}
+                />
               </Card>
             ))}
           </CardSwap>

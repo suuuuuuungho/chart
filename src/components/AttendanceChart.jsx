@@ -55,8 +55,10 @@ function curvePath(pts) {
 /**
  * 8주 출석 인원 추이. 단일 시리즈라 범례 없이 카드 제목이 시리즈를 지칭하고,
  * 모든 점에 값을 직접 적는다 (발표 중에는 hover로 확인할 수 없다).
+ * `secondary`가 있으면(전체 카드의 지각 시리즈) 같은 축 위에 얇은 보조 선으로 겹쳐 그린다 —
+ * DB에 지각 이력이 없어 대부분 빈 값이라 점선 "미입력" 표시 없이 값이 있는 주만 그린다.
  */
-export default function AttendanceChart({ points, yScale }) {
+export default function AttendanceChart({ points, yScale, color, secondary }) {
   const gradientId = useId();
   const values = points.map((p) => (typeof p.present === "number" ? p.present : null));
   const { min, max } = yScale ?? makeScale(values);
@@ -76,9 +78,17 @@ export default function AttendanceChart({ points, yScale }) {
       ? `${line} L${known[known.length - 1].x},${BASELINE} L${known[0].x},${BASELINE} Z`
       : "";
 
+  const secondaryKnown = secondary
+    ? secondary.values
+        .map((v, i) => (typeof v === "number" ? { x: toX(i), y: toY(v), i, value: v } : null))
+        .filter(Boolean)
+    : [];
+  const secondaryLine = secondaryKnown.length > 1 ? curvePath(secondaryKnown) : "";
+
   return (
     <svg
       className="att-chart"
+      style={{ "--graph-accent": color }}
       viewBox={`0 0 ${W} ${H}`}
       role="img"
       aria-label={`최근 ${points.length}주 출석 인원 추이`}
@@ -166,6 +176,21 @@ export default function AttendanceChart({ points, yScale }) {
           </g>
         );
       })}
+
+      {secondary ? (
+        <g className="att-chart__secondary" style={{ "--graph-accent": secondary.color }}>
+          {secondaryLine ? <path className="att-chart__line" d={secondaryLine} pathLength="1" /> : null}
+          {secondaryKnown.map(({ x, y, i, value }) => (
+            <g key={points[i].date}>
+              <title>{`${shortDate(points[i].date)} · 지각 ${value}명`}</title>
+              <circle className="att-chart__dot att-chart__dot--secondary" cx={x} cy={y} r={4} />
+              <text x={x} y={y - 14} className="att-chart__value">
+                {value}
+              </text>
+            </g>
+          ))}
+        </g>
+      ) : null}
     </svg>
   );
 }
