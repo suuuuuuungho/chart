@@ -47,6 +47,7 @@ export default function ClassCard({ card, color, lateColor, latePoints, highligh
       <div className="class-card__body">
         <div className="class-card__head">
           <div className="class-card__hero">
+            <span className="class-card__hero-title">{card.title}</span>
             {typeof today === "number" ? (
               <>
                 <span className="class-card__hero-value">{today}</span>

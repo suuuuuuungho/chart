@@ -297,19 +297,26 @@
 .class-card__hero {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 10px;
   color: var(--deck-ink);
 }
 
+.class-card__hero-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--deck-ink-2);
+}
+
 .class-card__hero-value {
-  font-size: 52px;
+  font-size: 64px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
 .class-card__hero-unit {
-  font-size: 19px;
+  font-size: 23px;
   color: var(--deck-ink-2);
 }
 
@@ -501,6 +508,78 @@
   .att-chart__dot {
     animation: none;
     stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- 카드 넘김 화살표 ---------- */
+
+.deck-root--backdrop > .deck-nav {
+  z-index: 6;
+}
+
+.deck-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--deck-border);
+  background: rgba(19, 17, 24, 0.6);
+  color: var(--deck-ink-2);
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.deck-nav:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--deck-ink);
+  border-color: var(--deck-series);
+}
+
+.deck-nav:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.deck-nav:focus-visible {
+  outline: 2px solid var(--deck-series);
+  outline-offset: 2px;
+}
+
+.deck-nav--prev {
+  left: calc(var(--deck-card-left, calc(100vw - 944px)) - 50px);
+}
+
+.deck-nav--next {
+  right: 18px;
+}
+
+@media (max-width: 768px) {
+  .deck-nav {
+    top: auto;
+    bottom: 16px;
+    transform: none;
+    width: 40px;
+    height: 40px;
+  }
+
+  .deck-nav:active {
+    transform: scale(0.92);
+  }
+
+  .deck-nav--prev {
+    left: 16px;
+  }
+
+  .deck-nav--next {
+    right: 16px;
   }
 }
 

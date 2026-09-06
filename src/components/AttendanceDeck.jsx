@@ -6,6 +6,7 @@ import ClassCard from "@/components/ClassCard";
 import DeckBackground from "@/components/DeckBackground";
 import { CARD_COLORS, LATE_COLOR, isISODate, longDate, resolveTargetSunday } from "@/lib/deck";
 import { liveKey, pruneOldLiveInput, readLiveInput } from "@/lib/liveInput";
+import { playSwipeSound } from "@/lib/sound";
 import "@/components/deck.css";
 
 export default function AttendanceDeck() {
@@ -107,10 +108,16 @@ export default function AttendanceDeck() {
     return best;
   }, [cards]);
 
-  const goNext = useCallback(() => swapRef.current?.next(), []);
-  const goPrev = useCallback(() => swapRef.current?.prev(), []);
+  const goNext = useCallback(() => {
+    playSwipeSound(1);
+    swapRef.current?.next();
+  }, []);
+  const goPrev = useCallback(() => {
+    playSwipeSound(-1);
+    swapRef.current?.prev();
+  }, []);
 
-  // 화면에 조작 버튼을 두지 않으므로 방향키(발표용 리모컨 포함)로만 넘긴다.
+  // 화살표 버튼 + 방향키(발표용 리모컨 포함) 둘 다로 넘긴다.
   useEffect(() => {
     if (cards.length === 0) return undefined;
     const onKey = (event) => {
@@ -157,27 +164,36 @@ export default function AttendanceDeck() {
       </div>
 
       {cards.length > 0 ? (
-        <div className="deck-stage">
-          <CardSwap
-            ref={swapRef}
-            width={860}
-            height={570}
-            cardDistance={40}
-            verticalDistance={36}
-          >
-            {cards.map((card) => (
-              <Card key={card.key} className={card.key === topGainerKey ? "card--top-gainer" : undefined}>
-                <ClassCard
-                  card={card}
-                  color={card.color}
-                  lateColor={card.key === "전체" ? LATE_COLOR : undefined}
-                  latePoints={card.key === "전체" ? card.latePoints : undefined}
-                  highlight={card.key === topGainerKey}
-                />
-              </Card>
-            ))}
-          </CardSwap>
-        </div>
+        <>
+          <div className="deck-stage">
+            <CardSwap
+              ref={swapRef}
+              width={860}
+              height={596}
+              cardDistance={40}
+              verticalDistance={36}
+            >
+              {cards.map((card) => (
+                <Card key={card.key} className={card.key === topGainerKey ? "card--top-gainer" : undefined}>
+                  <ClassCard
+                    card={card}
+                    color={card.color}
+                    lateColor={card.key === "전체" ? LATE_COLOR : undefined}
+                    latePoints={card.key === "전체" ? card.latePoints : undefined}
+                    highlight={card.key === topGainerKey}
+                  />
+                </Card>
+              ))}
+            </CardSwap>
+          </div>
+
+          <button type="button" className="deck-nav deck-nav--prev" onClick={goPrev} aria-label="이전 반">
+            ‹
+          </button>
+          <button type="button" className="deck-nav deck-nav--next" onClick={goNext} aria-label="다음 반">
+            ›
+          </button>
+        </>
       ) : null}
     </div>
   );
