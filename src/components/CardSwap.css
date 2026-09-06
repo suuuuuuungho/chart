@@ -5,13 +5,12 @@
   transform: translate(5%, 20%);
   transform-origin: bottom right;
 
-  perspective: 900px;
   overflow: visible;
 }
 
 /*
  * 카드는 불투명한 블랙. 얇은 테두리와 안쪽 하이라이트, 깊은 그림자로 입체감을 준다.
- * (반투명으로 두면 4장이 겹칠 때 뒤 카드의 차트가 비쳐 읽을 수 없다.)
+ * (반투명으로 두면 전환 중 겹치는 두 장의 차트가 비쳐 읽을 수 없다.)
  */
 .card {
   position: absolute;
@@ -25,10 +24,7 @@
     0 2px 10px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.13);
 
-  transform-style: preserve-3d;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
 }
 
 /* 지난주 대비 증가율이 가장 높은 반: 테두리를 초록으로 밝히고 은은한 글로우를 더한다. */
@@ -43,10 +39,9 @@
 }
 
 /*
- * 스택 앵커. 스테이지 높이를 "그때 실제로 렌더되는 카드 높이"와 같게 두고 세로 중앙에 놓으면,
+ * 카드 앵커. 스테이지 높이를 "실제로 렌더되는 카드 높이"와 같게 두고 세로 중앙에 놓으면,
  * 카드 위·아래 바깥 여백이 항상 같아진다. (컨테이너는 스테이지 오른쪽 아래에 붙고,
  * scale의 기준점도 오른쪽 아래라 카드 하단이 스테이지 하단에 고정된다.)
- * right는 3D 기울기로 넓어지는 바운딩 박스만큼 더 띄운 값이다.
  */
 .card-swap-container {
   transform: none;
@@ -112,10 +107,7 @@
   }
 }
 
-/*
- * 좁은 화면에서는 흘려보낼 여백이 없다. 앞 카드가 통째로 보이도록 스택을 가운데로 모으고
- * 뒤쪽 카드만 오른쪽으로 빠지게 둔다.
- */
+/* 좁은 화면에서는 흘려보낼 여백이 없다. 카드가 통째로 보이도록 가운데로 모은다. */
 @media (max-width: 768px) {
   .card-swap-container {
     left: 50%;

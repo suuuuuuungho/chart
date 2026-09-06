@@ -166,13 +166,7 @@ export default function AttendanceDeck() {
       {cards.length > 0 ? (
         <>
           <div className="deck-stage">
-            <CardSwap
-              ref={swapRef}
-              width={860}
-              height={596}
-              cardDistance={40}
-              verticalDistance={36}
-            >
+            <CardSwap ref={swapRef} width={860} height={596}>
               {cards.map((card) => (
                 <Card key={card.key} className={card.key === topGainerKey ? "card--top-gainer" : undefined}>
                   <ClassCard
