@@ -27,24 +27,13 @@ export const CARDS = [
   { key: "전체", title: "전체", subtitle: "중등부 전체 합계", classes: ALL_CLASSES },
 ];
 
-// 학년별 그래프 색. dataviz validate_palette.js 통과 (surface #000000, dark):
-// 노랑/초록/민트/파랑 각각 단독 사용이라 상호 대비만 개별 확인했고,
-// 전체(레드)·지각(핑크)만 한 차트에 같이 그려지므로 그 둘은 상호 CVD/일반 시야 분리까지 통과시켰다.
-const GRADE_COLOR = {
-  "중등부 1학년": "#c98500",
-  "중등부 2학년": "#3a9c14",
-  "중등부 3학년": "#08a3a2",
-};
-const NEWCOMER_COLOR = "#3987e5";
+// 그래프 색. 반/신입부는 원래 쓰던 보라색으로 통일하고, 전체(레드)·지각(핑크)만 구분한다.
+const CLASS_COLOR = "#b19eef";
 const TOTAL_COLOR = "#ad2f26";
 export const LATE_COLOR = "#cc66aa";
 
 export const CARD_COLORS = Object.fromEntries(
-  CARDS.map((card) => {
-    if (card.key === "전체") return [card.key, TOTAL_COLOR];
-    if (card.key === "신입부") return [card.key, NEWCOMER_COLOR];
-    return [card.key, GRADE_COLOR[card.subtitle]];
-  })
+  CARDS.map((card) => [card.key, card.key === "전체" ? TOTAL_COLOR : CLASS_COLOR])
 );
 
 // 카드 바로가기 칩에 쓰는 짧은 라벨 ("1-1반" -> "1-1").
@@ -89,7 +78,11 @@ export function sundaysEndingAt(iso, count = WEEKS) {
   return out;
 }
 
-/** 값이 좁은 범위에 몰려도 추이가 보이도록 위아래로 여유를 준 눈금. */
+/**
+ * 값이 좁은 범위에 몰려도 추이가 보이도록 위아래로 여유를 준 눈금.
+ * 반 20개를 한 스케일로 묶다 보니 여백까지 넉넉하면 개별 반의 증감이 다 눌려 보였다.
+ * 라벨 한 줄 들어갈 만큼만 남기고 나머지는 실제 데이터가 채우게 한다.
+ */
 export function makeScale(values) {
   const known = values.filter((v) => v !== null && v !== undefined);
   if (known.length === 0) return { min: 0, max: 1 };
@@ -97,7 +90,7 @@ export function makeScale(values) {
   const hi = Math.max(...known);
   if (hi === lo) return { min: Math.max(0, lo - 2), max: lo + 2 };
   const span = hi - lo;
-  return { min: Math.max(0, lo - span * 0.4), max: hi + span * 0.3 };
+  return { min: Math.max(0, lo - span * 0.08), max: hi + span * 0.18 };
 }
 
 /** "2026-08-30" -> "8/30" */

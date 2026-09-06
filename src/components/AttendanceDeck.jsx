@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CardSwap, { Card } from "@/components/CardSwap";
 import ClassCard from "@/components/ClassCard";
 import DeckBackground from "@/components/DeckBackground";
-import { CARD_COLORS, LATE_COLOR, isISODate, longDate, makeScale, resolveTargetSunday } from "@/lib/deck";
+import { CARD_COLORS, LATE_COLOR, isISODate, longDate, resolveTargetSunday } from "@/lib/deck";
 import { liveKey, pruneOldLiveInput, readLiveInput } from "@/lib/liveInput";
 import "@/components/deck.css";
 
@@ -87,17 +87,24 @@ export default function AttendanceDeck() {
     });
   }, [data, live]);
 
-  // 반마다 y축이 따로 늘어나면 데이터 차이가 실제보다 가파른 경사로 보인다.
-  // "전체"(전체인원 합계)만 자기 데이터 범위로 두고, 나머지 반은 공통 스케일을 쓴다.
-  const classScale = useMemo(() => {
-    const values = [];
+  // 지난주 대비 증가율이 가장 높은 반(전체 제외)에 강조 효과를 준다.
+  const topGainerKey = useMemo(() => {
+    let best = null;
+    let bestRate = 0;
     for (const card of cards) {
       if (card.key === "전체") continue;
-      for (const point of card.points) {
-        if (typeof point.present === "number") values.push(point.present);
+      const points = card.points;
+      const today = points[points.length - 1]?.present;
+      const previous = points[points.length - 2]?.present;
+      if (typeof today !== "number" || typeof previous !== "number") continue;
+      if (previous <= 0 || today <= previous) continue;
+      const rate = (today - previous) / previous;
+      if (rate > bestRate) {
+        bestRate = rate;
+        best = card.key;
       }
     }
-    return makeScale(values);
+    return best;
   }, [cards]);
 
   const goNext = useCallback(() => swapRef.current?.next(), []);
@@ -159,13 +166,13 @@ export default function AttendanceDeck() {
             verticalDistance={36}
           >
             {cards.map((card) => (
-              <Card key={card.key}>
+              <Card key={card.key} className={card.key === topGainerKey ? "card--top-gainer" : undefined}>
                 <ClassCard
                   card={card}
-                  yScale={card.key === "전체" ? undefined : classScale}
                   color={card.color}
                   lateColor={card.key === "전체" ? LATE_COLOR : undefined}
                   latePoints={card.key === "전체" ? card.latePoints : undefined}
+                  highlight={card.key === topGainerKey}
                 />
               </Card>
             ))}

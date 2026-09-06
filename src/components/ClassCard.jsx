@@ -22,7 +22,7 @@ function Delta({ today, previous }) {
   );
 }
 
-export default function ClassCard({ card, yScale, color, lateColor, latePoints }) {
+export default function ClassCard({ card, color, lateColor, latePoints, highlight }) {
   const points = card.points;
   const todayPoint = points[points.length - 1];
   const today = todayPoint?.present ?? null;
@@ -48,6 +48,11 @@ export default function ClassCard({ card, yScale, color, lateColor, latePoints }
         <div className="class-card__head">
           <div className="class-card__meta">
             <Delta today={today} previous={previous} />
+            {highlight ? (
+              <span className="deck-flag deck-flag--gain">
+                <span aria-hidden="true">🔥</span> 이번 주 최고 증가
+              </span>
+            ) : null}
             {partial ? (
               <span className="deck-flag">
                 일부 입력 {todayPoint.enteredClasses}/{todayPoint.totalClasses}반
@@ -80,7 +85,6 @@ export default function ClassCard({ card, yScale, color, lateColor, latePoints }
 
         <AttendanceChart
           points={points}
-          yScale={yScale}
           color={color}
           secondary={latePoints ? { values: latePoints, color: lateColor } : undefined}
         />

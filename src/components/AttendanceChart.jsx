@@ -58,10 +58,10 @@ function curvePath(pts) {
  * `secondary`가 있으면(전체 카드의 지각 시리즈) 같은 축 위에 얇은 보조 선으로 겹쳐 그린다 —
  * DB에 지각 이력이 없어 대부분 빈 값이라 점선 "미입력" 표시 없이 값이 있는 주만 그린다.
  */
-export default function AttendanceChart({ points, yScale, color, secondary }) {
+export default function AttendanceChart({ points, color, secondary }) {
   const gradientId = useId();
   const values = points.map((p) => (typeof p.present === "number" ? p.present : null));
-  const { min, max } = yScale ?? makeScale(values);
+  const { min, max } = makeScale(values);
   const band = PLOT_W / (points.length - 1 || 1);
   const lastIndex = points.length - 1;
 

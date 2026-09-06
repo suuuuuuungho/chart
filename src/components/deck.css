@@ -584,6 +584,14 @@
   color: var(--deck-muted);
 }
 
+/* 지난주 대비 증가율 1위 반 배지. 위쪽 화살표(▲)와 같은 초록으로 "증가"를 잇는다. */
+.deck-flag--gain {
+  border-color: rgba(12, 163, 12, 0.5);
+  background: rgba(12, 163, 12, 0.12);
+  color: var(--deck-good);
+  font-weight: 600;
+}
+
 /* ---------- 당일 입력 ---------- */
 
 .live-input {
