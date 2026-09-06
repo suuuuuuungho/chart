@@ -41,6 +41,16 @@
   transform: none;
 }
 
+/*
+ * 카드 앞면 왼쪽 모서리가 화면 왼쪽에서 떨어진 거리.
+ * = 100vw - (스테이지 right) - (카드 폭 860px x 컨테이너 scale)
+ * 왼쪽 텍스트 열이 이 값에서 폭을 잡는다 (deck.css의 .deck-side).
+ * 아래 스테이지/scale 값을 바꾸면 이 변수도 같이 고쳐야 한다.
+ */
+.deck-root--backdrop {
+  --deck-card-left: calc(100vw - 944px); /* 84 + 860 */
+}
+
 .deck-stage {
   position: absolute;
   right: 84px;
@@ -50,9 +60,12 @@
   height: 492px;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1560px) {
   .card-swap-container {
     transform: scale(0.9);
+  }
+  .deck-root--backdrop {
+    --deck-card-left: calc(100vw - 858px); /* 84 + 860 x 0.9 */
   }
   .deck-stage {
     right: 84px;
@@ -65,6 +78,9 @@
   .card-swap-container {
     transform: scale(0.72);
   }
+  .deck-root--backdrop {
+    --deck-card-left: calc(100vw - 660px); /* 40 + 860 x 0.72 */
+  }
   .deck-stage {
     right: 40px;
     width: 76%;
@@ -75,6 +91,9 @@
 @media (max-height: 640px) {
   .card-swap-container {
     transform: scale(0.68);
+  }
+  .deck-root--backdrop {
+    --deck-card-left: calc(100vw - 621px); /* 36 + 860 x 0.68 */
   }
   .deck-stage {
     right: 36px;
