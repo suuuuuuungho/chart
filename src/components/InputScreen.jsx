@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import TodayInputPanel from "@/components/TodayInputPanel";
 import { isISODate, resolveTargetSunday } from "@/lib/deck";
-import { pruneOldLiveInput } from "@/lib/liveInput";
 import "@/components/deck.css";
 
 /** 태블릿/폰에서 당일 인원만 입력하는 전용 화면. */
@@ -15,7 +14,6 @@ export default function InputScreen() {
   useEffect(() => {
     const override = new URLSearchParams(window.location.search).get("date");
     const resolved = isISODate(override) ? override : resolveTargetSunday();
-    pruneOldLiveInput(resolved);
 
     let cancelled = false;
     // 지난주 값은 있으면 좋은 참고치라, 못 받아와도 입력은 그대로 가능하게 둔다.
@@ -45,6 +43,7 @@ export default function InputScreen() {
           targetDate={targetDate}
           previousDate={meta?.previousDate}
           lastWeekByClass={meta?.lastWeekByClass}
+          initialValues={meta?.live}
         />
       ) : (
         <div className="deck-state">불러오는 중…</div>

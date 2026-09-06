@@ -797,6 +797,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+.live-input__save {
+  font-size: 12px;
+  color: var(--deck-muted);
+}
+
+.live-input__save--saved {
+  color: var(--deck-good);
+}
+
+.live-input__save--error {
+  color: var(--deck-critical);
+}
+
 /* ---------- 입력 패널(발표 화면 위) ---------- */
 
 .deck-panel {

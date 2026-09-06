@@ -1,6 +1,7 @@
 // 서버 전용: Turso `Att_School`에서 반별 주간 출석 인원을 읽어 카드 시리즈로 만든다.
 import { getDb } from "@/lib/turso";
 import { CARDS, WEEKS, sundaysEndingAt } from "@/lib/deck";
+import { readLiveDraft } from "@/lib/liveDraft";
 
 // '가정'(가정예배)은 참석으로 집계한다.
 const PRESENT_VALUES = ["참석", "가정"];
@@ -19,7 +20,7 @@ export async function getAttendanceSeries(targetDate) {
   const dates = sundaysEndingAt(targetDate, WEEKS);
   const db = getDb();
 
-  const [counts, loaded] = await Promise.all([
+  const [counts, loaded, live] = await Promise.all([
     db.execute({
       sql: `SELECT Att_Date, Div_Class, COUNT(*) AS present
               FROM Att_School
@@ -35,6 +36,8 @@ export async function getAttendanceSeries(targetDate) {
              WHERE Att_Date IN (${placeholders(dates.length)})`,
       args: dates,
     }),
+    // 정식 데이터가 아직 없는 주를 위한 임시 입력값. 기기에 상관없이 DB에서 같이 본다.
+    readLiveDraft(db, targetDate),
   ]);
 
   // date -> class -> present
@@ -67,6 +70,7 @@ export async function getAttendanceSeries(targetDate) {
     previousDate,
     todayInDb: loadedDates.has(targetDate),
     lastWeekByClass,
+    live,
     cards,
   };
 }

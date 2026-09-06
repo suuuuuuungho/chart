@@ -5,9 +5,10 @@ import CardSwap, { Card } from "@/components/CardSwap";
 import ClassCard from "@/components/ClassCard";
 import DeckBackground from "@/components/DeckBackground";
 import { CARD_COLORS, LATE_COLOR, isISODate, longDate, resolveTargetSunday } from "@/lib/deck";
-import { liveKey, pruneOldLiveInput, readLiveInput } from "@/lib/liveInput";
 import { playSwipeSound } from "@/lib/sound";
 import "@/components/deck.css";
+
+const POLL_INTERVAL_MS = 15000;
 
 export default function AttendanceDeck() {
   const [targetDate, setTargetDate] = useState(null);
@@ -18,13 +19,14 @@ export default function AttendanceDeck() {
   const swapRef = useRef(null);
 
   // 기준 일요일은 브라우저의 로컬 시간대에서 계산한다 (서버는 UTC라 하루가 어긋날 수 있다).
+  // 당일 임시값은 이 기기가 아니라 서버(Turso)에 있으므로, 다른 기기에서 입력해도
+  // 여기서 보이도록 주기적으로 다시 불러온다.
   useEffect(() => {
     const override = new URLSearchParams(window.location.search).get("date");
     const resolved = isISODate(override) ? override : resolveTargetSunday();
-    pruneOldLiveInput(resolved);
 
     let cancelled = false;
-    (async () => {
+    const load = async () => {
       try {
         const res = await fetch(`/api/attendance?date=${resolved}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -32,32 +34,27 @@ export default function AttendanceDeck() {
         if (cancelled) return;
         setTargetDate(resolved);
         setData(json);
-        setLive(readLiveInput(resolved));
+        setLive(json.live ?? {});
         setStatus("ready");
       } catch {
         if (cancelled) return;
         setTargetDate(resolved);
         setStatus("error");
       }
-    })();
+    };
+
+    load();
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") load();
+    }, POLL_INTERVAL_MS);
 
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, []);
 
-  // /input은 별도 화면이라, 거기서 입력한 값이 이 화면에 바로 반영되도록 저장소 변경을 듣는다.
-  useEffect(() => {
-    if (!targetDate) return undefined;
-    const key = liveKey(targetDate);
-    const onStorage = (event) => {
-      if (event.key === null || event.key === key) setLive(readLiveInput(targetDate));
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, [targetDate]);
-
-  // 당일 값: DB에 그 주가 적재됐으면 DB 우선, 아니면 이 기기의 임시 입력값.
+  // 당일 값: DB에 그 주가 적재됐으면 DB 우선, 아니면 서버에 저장된 임시 입력값.
   // 지각은 반별 숫자에는 더하지 않고("참석"만 반영), "전체" 카드의 지각 시리즈에만 합산한다.
   const cards = useMemo(() => {
     if (!data) return [];

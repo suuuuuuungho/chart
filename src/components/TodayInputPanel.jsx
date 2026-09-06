@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { INPUT_CLASSES, longDate, shortDate } from "@/lib/deck";
-import { clearLiveInput, readLiveInput, writeLiveInput } from "@/lib/liveInput";
 
 function groupClasses() {
   const groups = new Map();
@@ -14,9 +13,22 @@ function groupClasses() {
 }
 
 const GROUPS = groupClasses();
+const SAVE_DEBOUNCE_MS = 500;
 
 const emptyDraft = () =>
   Object.fromEntries(INPUT_CLASSES.map(({ name }) => [name, { present: "", late: "" }]));
+
+function draftFromValues(values) {
+  const base = emptyDraft();
+  for (const [name, entry] of Object.entries(values ?? {})) {
+    if (!base[name]) continue;
+    base[name] = {
+      present: entry?.present != null ? String(entry.present) : "",
+      late: entry?.late != null ? String(entry.late) : "",
+    };
+  }
+  return base;
+}
 
 function toValues(draft) {
   const out = {};
@@ -35,28 +47,59 @@ function toValues(draft) {
   return out;
 }
 
+const SAVE_LABEL = {
+  saving: "저장 중…",
+  saved: "저장됨 · 모든 기기에 반영됩니다",
+  error: "저장 실패 · 다시 시도해 주세요",
+};
+
 /**
- * 당일 출석 인원 임시 입력. 값은 DB에 저장하지 않고 이 기기의 localStorage에만 남는다.
- * 참석/지각만 받고, 지각을 뺀 정시 출석(미지각)은 그 자리에서 계산해 보여준다.
+ * 당일 출석 인원 임시 입력. 참석/지각만 입력하면 미지각(정시 출석)은 자동으로 계산해 보여준다.
+ * 값은 서버(Turso)에 저장되므로 입력한 기기와 발표 화면을 보는 기기가 달라도 그대로 반영된다.
  */
-export default function TodayInputPanel({ targetDate, previousDate, lastWeekByClass = {}, onChange }) {
-  const [draft, setDraft] = useState(() => {
-    const stored = readLiveInput(targetDate);
-    const base = emptyDraft();
-    for (const [name, entry] of Object.entries(stored)) {
-      base[name] = {
-        present: entry.present != null ? String(entry.present) : "",
-        late: entry.late != null ? String(entry.late) : "",
-      };
-    }
-    return base;
-  });
+export default function TodayInputPanel({
+  targetDate,
+  previousDate,
+  lastWeekByClass = {},
+  initialValues,
+  onChange,
+}) {
+  const [draft, setDraft] = useState(() => draftFromValues(initialValues));
+  const [saveState, setSaveState] = useState("idle");
+  const saveTimer = useRef(null);
+  const latestValues = useRef(null);
+
+  useEffect(
+    () => () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    },
+    []
+  );
+
+  const persist = (values) => {
+    latestValues.current = values;
+    setSaveState("saving");
+    fetch("/api/attendance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date: targetDate, values }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("save failed");
+        // 저장이 끝난 사이 더 최근 입력이 없을 때만 "저장됨"으로 표시한다.
+        if (latestValues.current === values) setSaveState("saved");
+      })
+      .catch(() => {
+        if (latestValues.current === values) setSaveState("error");
+      });
+  };
 
   const commit = (nextDraft) => {
     setDraft(nextDraft);
     const values = toValues(nextDraft);
-    writeLiveInput(targetDate, values);
     onChange?.(values);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => persist(values), SAVE_DEBOUNCE_MS);
   };
 
   const handleChange = (name, field, raw) => {
@@ -65,9 +108,16 @@ export default function TodayInputPanel({ targetDate, previousDate, lastWeekByCl
   };
 
   const handleClear = () => {
-    clearLiveInput(targetDate);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
     setDraft(emptyDraft());
     onChange?.({});
+    setSaveState("saving");
+    fetch(`/api/attendance?date=${targetDate}`, { method: "DELETE" })
+      .then((res) => {
+        if (!res.ok) throw new Error("clear failed");
+        setSaveState("idle");
+      })
+      .catch(() => setSaveState("error"));
   };
 
   const { total, filled } = useMemo(() => {
@@ -143,6 +193,11 @@ export default function TodayInputPanel({ targetDate, previousDate, lastWeekByCl
         <span className="live-input__total">
           입력 완료 <b>{filled}</b> / {INPUT_CLASSES.length}개 반 · 참석 합계 <b>{total}</b>명
         </span>
+        {saveState !== "idle" ? (
+          <span className={`live-input__save live-input__save--${saveState}`}>
+            {SAVE_LABEL[saveState]}
+          </span>
+        ) : null}
         <button type="button" className="deck-btn" onClick={handleClear}>
           전체 지우기
         </button>
