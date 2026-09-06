@@ -48,11 +48,10 @@
 .deck-side {
   /*
    * 카드 앞면 왼쪽 모서리(--deck-card-left, CardSwap.css)까지를 텍스트 자리로 쓰고,
-   * 카드와의 사이에는 --deck-gutter 만큼만 비워 둔다. 고정 폭으로 두면 넓은 화면에서
-   * 텍스트와 카드 사이에 쓰지 않는 공백이 400px 넘게 남는다.
+   * 카드와의 사이에는 --deck-gutter(CardSwap.css, 화살표 버튼과 공유) 만큼만 비워 둔다.
+   * 고정 폭으로 두면 넓은 화면에서 텍스트와 카드 사이에 쓰지 않는 공백이 400px 넘게 남는다.
    */
   --deck-pad: clamp(40px, 4vw, 88px);
-  --deck-gutter: clamp(36px, 3.4vw, 72px);
 
   position: relative;
   /* 글자 크기를 화면 폭이 아니라 "이 열에 실제로 남은 폭"에 맞춘다. */
@@ -64,7 +63,7 @@
   justify-content: center;
   width: clamp(
     320px,
-    calc(var(--deck-card-left, calc(100vw - 944px)) - var(--deck-gutter)),
+    calc(var(--deck-card-left, calc(100vw - 990px)) - var(--deck-gutter)),
     980px
   );
   height: 100%;
@@ -518,21 +517,23 @@
 }
 
 .deck-nav {
+  --deck-nav-size: 40px;
+
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--deck-nav-size);
+  height: var(--deck-nav-size);
   padding: 0;
   border-radius: 999px;
   border: 1px solid var(--deck-border);
   background: rgba(19, 17, 24, 0.6);
   color: var(--deck-ink-2);
   font: inherit;
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
@@ -553,12 +554,17 @@
   outline-offset: 2px;
 }
 
+/* 텍스트 열과 카드 사이 여백(--deck-gutter) 한가운데 놓는다. */
 .deck-nav--prev {
-  left: calc(var(--deck-card-left, calc(100vw - 944px)) - 50px);
+  left: max(
+    8px,
+    calc(var(--deck-card-left, calc(100vw - 990px)) - var(--deck-gutter) / 2 - var(--deck-nav-size) / 2)
+  );
 }
 
+/* 카드 오른쪽 끝에서 화면 끝까지의 실제 여백(--deck-margin-right) 한가운데 놓는다. */
 .deck-nav--next {
-  right: 18px;
+  right: max(8px, calc(var(--deck-margin-right, 87px) / 2 - var(--deck-nav-size) / 2));
 }
 
 @media (max-width: 768px) {
@@ -566,8 +572,6 @@
     top: auto;
     bottom: 16px;
     transform: none;
-    width: 40px;
-    height: 40px;
   }
 
   .deck-nav:active {

@@ -51,10 +51,15 @@
  * 카드 앞면 왼쪽 모서리가 화면 왼쪽에서 떨어진 거리.
  * = 100vw - (스테이지 right) - (카드 폭 860px x 컨테이너 scale)
  * 왼쪽 텍스트 열이 이 값에서 폭을 잡는다 (deck.css의 .deck-side).
- * 아래 스테이지/scale 값을 바꾸면 이 변수도 같이 고쳐야 한다.
+ * --deck-margin-right는 카드 오른쪽 끝에서 화면 끝까지 실제 여백
+ * (스테이지 right에서 5% 컨테이너 오버슛만큼 뺀 값). 화살표 버튼을
+ * 양쪽 여백 한가운데 놓는 데 --deck-gutter와 함께 쓴다(deck.css).
+ * 아래 스테이지/scale 값을 바꾸면 이 변수들도 같이 고쳐야 한다.
  */
 .deck-root--backdrop {
   --deck-card-left: calc(100vw - 990px); /* 130 + 860 */
+  --deck-margin-right: 87px; /* 130 - 860 x 0.05 */
+  --deck-gutter: clamp(36px, 3.4vw, 72px);
 }
 
 .deck-stage {
@@ -72,6 +77,7 @@
   }
   .deck-root--backdrop {
     --deck-card-left: calc(100vw - 904px); /* 130 + 860 x 0.9 */
+    --deck-margin-right: 91px; /* 130 - 860 x 0.9 x 0.05 */
   }
   .deck-stage {
     right: 130px;
@@ -86,6 +92,7 @@
   }
   .deck-root--backdrop {
     --deck-card-left: calc(100vw - 689px); /* 70 + 860 x 0.72 */
+    --deck-margin-right: 39px; /* 70 - 860 x 0.72 x 0.05 */
   }
   .deck-stage {
     right: 70px;
@@ -100,6 +107,7 @@
   }
   .deck-root--backdrop {
     --deck-card-left: calc(100vw - 645px); /* 60 + 860 x 0.68 */
+    --deck-margin-right: 31px; /* 60 - 860 x 0.68 x 0.05 */
   }
   .deck-stage {
     right: 60px;
