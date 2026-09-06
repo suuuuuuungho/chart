@@ -257,24 +257,24 @@
 .class-card__tag {
   display: inline-flex;
   align-items: baseline;
-  gap: 9px;
+  gap: 10px;
   margin-left: auto;
-  padding: 5px 12px;
+  padding: 7px 16px;
   border: 1px solid var(--deck-hairline);
-  border-radius: 8px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
 }
 
 .class-card__tag-name {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--deck-ink);
 }
 
 .class-card__tag-sub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--deck-muted);
 }
 

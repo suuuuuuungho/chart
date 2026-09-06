@@ -46,6 +46,16 @@ export default function ClassCard({ card, color, lateColor, latePoints, highligh
 
       <div className="class-card__body">
         <div className="class-card__head">
+          <div className="class-card__hero">
+            {typeof today === "number" ? (
+              <>
+                <span className="class-card__hero-value">{today}</span>
+                <span className="class-card__hero-unit">명</span>
+              </>
+            ) : (
+              <span className="class-card__hero-pending">입력 대기</span>
+            )}
+          </div>
           <div className="class-card__meta">
             <Delta today={today} previous={previous} />
             {highlight ? (
@@ -70,16 +80,6 @@ export default function ClassCard({ card, color, lateColor, latePoints, highligh
                 </span>
               </span>
             ) : null}
-          </div>
-          <div className="class-card__hero">
-            {typeof today === "number" ? (
-              <>
-                <span className="class-card__hero-value">{today}</span>
-                <span className="class-card__hero-unit">명</span>
-              </>
-            ) : (
-              <span className="class-card__hero-pending">입력 대기</span>
-            )}
           </div>
         </div>
 
