@@ -59,12 +59,12 @@
  * 아래 스테이지/scale 값을 바꾸면 이 변수도 같이 고쳐야 한다.
  */
 .deck-root--backdrop {
-  --deck-card-left: calc(100vw - 944px); /* 84 + 860 */
+  --deck-card-left: calc(100vw - 990px); /* 130 + 860 */
 }
 
 .deck-stage {
   position: absolute;
-  right: 84px;
+  right: 130px;
   top: 50%;
   transform: translateY(calc(-50% - 2px));
   width: 64%;
@@ -76,10 +76,10 @@
     transform: scale(0.9);
   }
   .deck-root--backdrop {
-    --deck-card-left: calc(100vw - 858px); /* 84 + 860 x 0.9 */
+    --deck-card-left: calc(100vw - 904px); /* 130 + 860 x 0.9 */
   }
   .deck-stage {
-    right: 84px;
+    right: 130px;
     width: 70%;
     height: 536px;
   }
@@ -90,10 +90,10 @@
     transform: scale(0.72);
   }
   .deck-root--backdrop {
-    --deck-card-left: calc(100vw - 660px); /* 40 + 860 x 0.72 */
+    --deck-card-left: calc(100vw - 689px); /* 70 + 860 x 0.72 */
   }
   .deck-stage {
-    right: 40px;
+    right: 70px;
     width: 76%;
     height: 429px;
   }
@@ -104,10 +104,10 @@
     transform: scale(0.68);
   }
   .deck-root--backdrop {
-    --deck-card-left: calc(100vw - 621px); /* 36 + 860 x 0.68 */
+    --deck-card-left: calc(100vw - 645px); /* 60 + 860 x 0.68 */
   }
   .deck-stage {
-    right: 36px;
+    right: 60px;
     height: 406px;
   }
 }
