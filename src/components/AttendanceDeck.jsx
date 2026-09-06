@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CardSwap, { Card } from "@/components/CardSwap";
 import ClassCard from "@/components/ClassCard";
 import DeckBackground from "@/components/DeckBackground";
-import { isISODate, longDate, resolveTargetSunday } from "@/lib/deck";
+import { isISODate, longDate, makeScale, resolveTargetSunday } from "@/lib/deck";
 import { liveKey, pruneOldLiveInput, readLiveInput } from "@/lib/liveInput";
 import "@/components/deck.css";
 
@@ -79,6 +79,19 @@ export default function AttendanceDeck() {
     });
   }, [data, live]);
 
+  // 반마다 y축이 따로 늘어나면 데이터 차이가 실제보다 가파른 경사로 보인다.
+  // "전체"(전체인원 합계)만 자기 데이터 범위로 두고, 나머지 반은 공통 스케일을 쓴다.
+  const classScale = useMemo(() => {
+    const values = [];
+    for (const card of cards) {
+      if (card.key === "전체") continue;
+      for (const point of card.points) {
+        if (typeof point.present === "number") values.push(point.present);
+      }
+    }
+    return makeScale(values);
+  }, [cards]);
+
   const goNext = useCallback(() => swapRef.current?.next(), []);
   const goPrev = useCallback(() => swapRef.current?.prev(), []);
 
@@ -133,13 +146,13 @@ export default function AttendanceDeck() {
           <CardSwap
             ref={swapRef}
             width={860}
-            height={492}
+            height={570}
             cardDistance={40}
             verticalDistance={36}
           >
             {cards.map((card) => (
               <Card key={card.key}>
-                <ClassCard card={card} />
+                <ClassCard card={card} yScale={card.key === "전체" ? undefined : classScale} />
               </Card>
             ))}
           </CardSwap>

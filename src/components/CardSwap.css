@@ -57,7 +57,7 @@
   top: 50%;
   transform: translateY(calc(-50% - 2px));
   width: 64%;
-  height: 492px;
+  height: 570px;
 }
 
 @media (max-width: 1560px) {
@@ -70,7 +70,7 @@
   .deck-stage {
     right: 84px;
     width: 70%;
-    height: 443px;
+    height: 513px;
   }
 }
 
@@ -84,7 +84,7 @@
   .deck-stage {
     right: 40px;
     width: 76%;
-    height: 354px;
+    height: 410px;
   }
 }
 
@@ -97,7 +97,7 @@
   }
   .deck-stage {
     right: 36px;
-    height: 335px;
+    height: 388px;
   }
 }
 
@@ -118,8 +118,8 @@
     right: auto;
     bottom: auto;
     width: 100%;
-    height: 390px;
-    min-height: 390px;
+    height: 452px;
+    min-height: 452px;
   }
 }
 
@@ -128,7 +128,7 @@
     transform: scale(0.33) translate(-50%, 0);
   }
   .deck-stage {
-    height: 330px;
-    min-height: 330px;
+    height: 382px;
+    min-height: 382px;
   }
 }

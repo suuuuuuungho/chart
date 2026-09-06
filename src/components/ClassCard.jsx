@@ -22,7 +22,7 @@ function Delta({ today, previous }) {
   );
 }
 
-export default function ClassCard({ card }) {
+export default function ClassCard({ card, yScale }) {
   const points = card.points;
   const todayPoint = points[points.length - 1];
   const today = todayPoint?.present ?? null;
@@ -66,7 +66,7 @@ export default function ClassCard({ card }) {
           </div>
         </div>
 
-        <AttendanceChart points={points} />
+        <AttendanceChart points={points} yScale={yScale} />
       </div>
     </div>
   );

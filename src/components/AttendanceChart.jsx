@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { shortDate } from "@/lib/deck";
+import { makeScale, shortDate } from "@/lib/deck";
 
 const W = 820;
 const H = 400;
@@ -52,25 +52,14 @@ function curvePath(pts) {
   return d;
 }
 
-/** 값이 좁은 범위에 몰려도 추이가 보이도록 위아래로 여유를 준 눈금. */
-function makeScale(values) {
-  const known = values.filter((v) => v !== null);
-  if (known.length === 0) return { min: 0, max: 1 };
-  const lo = Math.min(...known);
-  const hi = Math.max(...known);
-  if (hi === lo) return { min: Math.max(0, lo - 2), max: lo + 2 };
-  const span = hi - lo;
-  return { min: Math.max(0, lo - span * 0.4), max: hi + span * 0.3 };
-}
-
 /**
  * 8주 출석 인원 추이. 단일 시리즈라 범례 없이 카드 제목이 시리즈를 지칭하고,
  * 모든 점에 값을 직접 적는다 (발표 중에는 hover로 확인할 수 없다).
  */
-export default function AttendanceChart({ points }) {
+export default function AttendanceChart({ points, yScale }) {
   const gradientId = useId();
   const values = points.map((p) => (typeof p.present === "number" ? p.present : null));
-  const { min, max } = makeScale(values);
+  const { min, max } = yScale ?? makeScale(values);
   const band = PLOT_W / (points.length - 1 || 1);
   const lastIndex = points.length - 1;
 

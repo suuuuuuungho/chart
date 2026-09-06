@@ -59,16 +59,18 @@
   container-type: inline-size;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: clamp(20px, 1.8vw, 32px);
   justify-content: center;
   width: clamp(
     320px,
     calc(var(--deck-card-left, calc(100vw - 944px)) - var(--deck-gutter)),
-    900px
+    980px
   );
   height: 100%;
-  padding: 40px 0 40px var(--deck-pad);
+  padding: 40px var(--deck-pad);
   box-sizing: border-box;
+  text-align: center;
 }
 
 /* 좁은 화면에서는 좌우 배치를 세로로 쌓고 페이지가 자연스럽게 늘어나게 둔다. */
@@ -84,6 +86,8 @@
     width: 100%;
     height: auto;
     padding: 36px 20px 8px;
+    align-items: center;
+    text-align: center;
   }
 }
 
@@ -95,7 +99,7 @@
 
 .deck-top__title {
   margin: 0;
-  font-size: clamp(40px, 12cqw, 88px);
+  font-size: clamp(46px, 14.5cqw, 108px);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.035em;
@@ -108,7 +112,7 @@
 
 .deck-top__date {
   margin: clamp(14px, 2cqw, 24px) 0 0;
-  font-size: clamp(16px, 3cqw, 24px);
+  font-size: clamp(18px, 3.6cqw, 29px);
   line-height: 1.55;
   color: var(--deck-ink-2);
 }
@@ -118,11 +122,11 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  align-self: flex-start;
+  align-self: center;
   padding: 6px 7px 6px 6px;
   border: 1px solid var(--deck-border);
   border-radius: 999px;
-  font-size: clamp(13px, 2.1cqw, 19px);
+  font-size: clamp(15px, 2.5cqw, 22px);
   letter-spacing: 0.05em;
   color: var(--deck-ink-2);
 }

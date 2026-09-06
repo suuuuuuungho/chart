@@ -69,6 +69,17 @@ export function sundaysEndingAt(iso, count = WEEKS) {
   return out;
 }
 
+/** 값이 좁은 범위에 몰려도 추이가 보이도록 위아래로 여유를 준 눈금. */
+export function makeScale(values) {
+  const known = values.filter((v) => v !== null && v !== undefined);
+  if (known.length === 0) return { min: 0, max: 1 };
+  const lo = Math.min(...known);
+  const hi = Math.max(...known);
+  if (hi === lo) return { min: Math.max(0, lo - 2), max: lo + 2 };
+  const span = hi - lo;
+  return { min: Math.max(0, lo - span * 0.4), max: hi + span * 0.3 };
+}
+
 /** "2026-08-30" -> "8/30" */
 export function shortDate(iso) {
   const [, m, d] = iso.split("-");
